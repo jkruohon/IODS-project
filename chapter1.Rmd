@@ -3,4 +3,4 @@
 
 This is a playground for experimenting with, uh...something called "R Markdown", and GitHub. 
 
-[This](https://jkruohon.github.io/IODS-project/), on the other hand, is an attempt to provide a link to the main page of this playground.
+[This](https://jkruohon.github.io/IODS-project/), on the other hand, is an attempt to provide a link to the main page of this playground, i.e., the page that you're viewing right now.
