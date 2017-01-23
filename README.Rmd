@@ -1,0 +1,7 @@
+###Juho's Mock Readme File
+
+This is a readme file created as part of the homework assignment. 
+
+(This line should be surrounded on both sides by a blank line.)
+
+[This](https://github.com/jkruohon/IODS-project), on the other hand, should be the URL of this project. Pretty damn slick, huh?
