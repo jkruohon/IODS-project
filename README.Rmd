@@ -1,7 +1,7 @@
-###Juho's Mock Readme File
+###Juho's Readme File
 
 This is a readme file created as part of the homework assignment. 
-
-(This line should be surrounded on both sides by a blank line.)
-
-[This](https://github.com/jkruohon/IODS-project), on the other hand, should be the URL of this project. Pretty damn slick, huh?
+[This](https://github.com/jkruohon/IODS-project) is the URL of this page.
+[This](http://rmarkdown.rstudio.com/authoring_basics.html) is a link to the R Markdown cheatsheet.
+[These](http://rmarkdown.rstudio.com/authoring_rcodechunks.html) are instructions on how to embed R code into your document.
+[This](https://jkruohon.github.io/IODS-project/) is a link to the diary page.
