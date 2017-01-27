@@ -1,6 +1,6 @@
-# Insert chapter 2 title here
+# Linear Regression in R
 
-*Describe the work you have done this week and summarize your learning.*
+*Next week, this chapter shall contain a summary of what has been learned about correlating a continuous regressand with discrete and continuous predictors using R.*
 
 - Describe your work and results clearly. 
 - Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods

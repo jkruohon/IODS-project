@@ -8,11 +8,12 @@ This is a playground for experimenting with something called R Markdown. It seem
 
 [Repository page](https://github.com/jkruohon/IODS-project)
 
-
 [R Markdown basics](http://rmarkdown.rstudio.com/authoring_basics.html) (same link as on MOOC)
-
 
 [Embedding R code into a document](http://rmarkdown.rstudio.com/authoring_rcodechunks.html) (same link as on MOOC)
 
+[R Markdown cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf) (a different one!)
+
+[Regular expression cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/09/RegExCheatsheet.pdf) (we linguists use regexes a lot!)
 
 The [theme](http://bootswatch.com/) used for this page is called _readable_.
