@@ -1,8 +1,18 @@
 
 # About the project
 
-This is a playground for experimenting with, uh...something called "R Markdown", and GitHub. 
+This is a playground for experimenting with something called R Markdown. It seems to be a fairly simple mark-up language whose _raison d'etre_ is to enable the embedding of "live" R code into web pages and other interactive documents. 
 
-[This](https://jkruohon.github.io/IODS-project/), on the other hand, is an attempt to provide a link to the main page of this playground, i.e., the page that you're viewing right now. Yay huh? 
+[This](https://jkruohon.github.io/IODS-project/) is a link to the very page you're looking at right now, as required by the instructions. Some more useful links are listed below:
 
-[Here's](https://github.com/jkruohon/IODS-project) a link to the GitHub repository of this project.
+
+[Repository page](https://github.com/jkruohon/IODS-project)
+
+
+[R Markdown basics](http://rmarkdown.rstudio.com/authoring_basics.html) (same link as on MOOC)
+
+
+[Embedding R code into a document](http://rmarkdown.rstudio.com/authoring_rcodechunks.html) (same link as on MOOC)
+
+
+The [theme](http://bootswatch.com/) used for this page is called _readable_.
