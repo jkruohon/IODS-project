@@ -4,10 +4,8 @@ This is a readme file created as part of the homework assignment.
 
 [This](https://github.com/jkruohon/IODS-project) is the URL of this page, as requested in the instructions. Below are some useful links:
 
-[Diary page](https://jkruohon.github.io/IODS-project/)-- more content can be found there.
-
+[Diary page](https://jkruohon.github.io/IODS-project/) -- more content can be found there.
 [R Markdown basics](http://rmarkdown.rstudio.com/authoring_basics.html)
-
 [How to use R markdown to embed R code into your document](http://rmarkdown.rstudio.com/authoring_rcodechunks.html)
 
 
