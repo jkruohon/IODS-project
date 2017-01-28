@@ -34,3 +34,16 @@ p <- ggpairs(learning2014, mapping = aes(col=gender,alpha=0.3), lower = list(com
 
 ggpairs(learning2014, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20))) #tekee saman mutta 3x hienostuneempi ja informatiivisempi kuvaaja!! aes-argumentin sisään nimetään sarakkeet. wrap ja bins-argumenttien merkityksestä en ole vielä aivan varma.
 p <- ggpairs(learning2014, mapping = aes(col=gender,alpha=0.3), lower = list(combo = wrap("facethist", bins = 20))) #WOW!!!
+
+#eli lineaariregression tulosteen (ilman kuvaajaa), sen joita katseltiin johdatus 2 -kurssilla, antaa seuraava komento:
+summary(lm(selitettävämuuttuja ~ selittävämuuttuja1 + selitettävämuuttuja2 + selitettävämuuttuja3, data=dataframejossakaikkinämätiedotovat))
+#tuo varsinainen lm()-funktion tuottama objekti sisältää dataa mutta ei ilmeisesti ole kovin esityskelpoinen.
+sitä lm(n) tuotosta voidaan myös syöttää plot():lle argumentiksi niin saadaan niitä lineaarisen regression erilaisia diagnostiikkakuvia. plot(lm_object,which=1) esim antaa residuals vs fitted values -diagnostiikkakuvan eli sen jossa viiva menee keskellä ja residuaalit heiluvat sen ylä- ja alapuolella. whichin argumentiksi c(2,4,6) jos halutaan piirrättää kolme eri diagnostiikkakuvaa putkeen.
+
+#jos ennen tätä plotin diagnostiikkakuvanpiirtofunktiokutsua laitetaan samalle riville komento 
+par(mfrow = c(2,2));
+#niin se änkeää kaikki X diagnostiikkakuvaa (pienennetyt versiot tosin) samalle ruudulle jotta niitä voisi paremmin vertailla. tuo 2,2 on ilmeisesti taulun-jolla diagnostiikkakuvat esitetään, x-paikkojen ja y-paikkojen määrä.
+
+LEVERAGE OF OBSERVATIONS viittaa siihen, kuinka paljon/pahasti yksi havainto(yksikkö) vaikuttaa koko korrelaatiokertoimeen eli koko regressiosuoran kulmakertoimeen. jos esim yksi poikkeava havainto x-muuttujan jommassa kummassa ääripäässä antaa tosikorkean/tosimatalan y:n arvon, vaikuttaa se poikkeava havainto perkeleesti x:n regressiokertoimeen. sen sijaan jos tuo poikkeava äärimmäinen y:n arvo sijaitsee x:n keskivaiheilla, ei vaikutus ole näin selkeä. koska se, että se sijaitsee keskikohdassa, ei ainakaan tarkoita että x:n suuret tai pienet arvot olisivat ennustusvoimaisia. (se voi tosin jossain tapauksessa tarkoittaa, että keskimääriset x:n arvot olisivat ennustusvoimaisia, mutta tällöin x:n ja y:n suhde ei olisi enää lineaarinen, eiks ni?
+
+In R, predicting can be done using the predict() function. (see ?predict). The first argument of predict is a model object and the argument newdata (a data.frame) can be used to make predictions based on new observations. One or more columns of newdata should have the same name as the explanatory variables in the model object.  Sain.
