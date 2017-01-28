@@ -1,0 +1,36 @@
+joku slack-ryhmä jossa tapahtuisi huomattava osa kurssin kommunikaatiosta. sinne on ensin saatava kutsu jossa voi liittyä.
+
+github tunnus jkruohon yliopistosähköpostisalasana sama kuin yliopistosähköpostissa 16-17 lukuvuonna.
+
+!!KOETTA EI OLE!! CONTINUOUS ASSESSMENT!!!! oletettavasti datacamp-, rstudio-, ja vertaisarviointitehtävien mukaan.
+datacamp -tehtävät tehtävä takarajaan mennessä, VAIKUTTAVAT ARVOSANAAN!
+Rstudio-tehtävät tehtävä takarajaan mennessä, VAIKUTTAVAT ARVOSANAAN!
+
+korp.csc.fi
+blogs.helsinki.fi/computationalsocialscience <- pyyttonia automatisoituun datanhakuun.
+arho toikka skreippaa facebookkia ja twitteriä R:llä.
+scraping on termi sille että otetaanvain teksti.
+netvizz   jokin äppi jolla myös voi skreipata juttuja.
+
+useful resources -> cheatsheets -> visualization cheatsheet (ggplot2) OHOO!!
+
+COLNAMES() #antaa suoraan nimet dataframen sarakkeille (vektoreille) !!!
+#dplyr-libraryn filter-komento hyvä
+filter(dataframennimi,looginenehto)
+eli esim filter(bncnews2015,variant=="MS")
+
+p1 <- ggplot(learning2014, aes(x = attitude, y = points,col=gender)) #tekee kuvan jossa x akselilla (jonkin attachoidun vektorin) sarake "attitude" ja y-akselilla (jonkin attachoidun vektorin) sarake "points" ja kuvaushärpäkkeet (pisteet?? laatikot??) on värjätty attachoidun dataframen sarakkeen "gender" mukaan.
+p2 <- p1 + geom_point() #määrittää ggplot2:lla että p1:n kuvausmetodiksi tulee hajontakuvio
+p3 <- p2 + geom_smooth(method = "lm") #määrittää että p2:een lisätään regressiosuora
+p4 <- p3 + ggtitle("Student's attitude versus exam points")
+
+#näin tämä ggplot2 iteratiivisesti toimii.
+
+pairs(dataframe[sarakkeet],col=dataframe$sarake) #piirtää hajontakuvan jokaisesta... dataframen jokaisesta sarakeparista PAITSI JOS HAKASULKEIDEN SISÄÄN ASETETAAN SARAKKEILLE RAJOITTEITA TAI EHTOJA. col-argumentti kertoo minkä sarakkeen sisällön mukaan kuvaajajutut eli pisteet tai viivat väritetään.
+
+ILMEISESTI MYÖS GGally-kirjastoa tarvittaisiin näiden tekemiseen ggplot2:lla!!!
+
+p <- ggpairs(learning2014, mapping = aes(col=gender,alpha=0.3), lower = list(combo = wrap("facethist", bins = 20))) #
+
+ggpairs(learning2014, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20))) #tekee saman mutta 3x hienostuneempi ja informatiivisempi kuvaaja!! aes-argumentin sisään nimetään sarakkeet. wrap ja bins-argumenttien merkityksestä en ole vielä aivan varma.
+p <- ggpairs(learning2014, mapping = aes(col=gender,alpha=0.3), lower = list(combo = wrap("facethist", bins = 20))) #WOW!!!
