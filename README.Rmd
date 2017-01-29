@@ -1,8 +1,8 @@
-###Juho's Readme File
+###jkruohon's IODS Repository
 
-This is a readme file created as part of the homework assignment. 
+This repository contains the notes and files related to jkruohon's work in the Introduction to Open Data Science course, Spring 2017.
 
-[This](https://github.com/jkruohon/IODS-project) is the URL of this page, as requested in the instructions. Below are some useful links:
+Below are some useful links:
 
 [Diary page](https://jkruohon.github.io/IODS-project/) -- more content can be found there.
 

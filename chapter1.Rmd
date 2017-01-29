@@ -1,10 +1,11 @@
 
 # About the project
 
-This is a playground for experimenting with something called R Markdown. It seems to be a fairly simple mark-up language whose _raison d'etre_ is to enable the embedding of "live" R code into web pages and other interactive documents. 
+This is a playground for experimenting with something called R Markdown. 
 
-[This](https://jkruohon.github.io/IODS-project/) is a link to the very page you're looking at right now, as required by the instructions. Some more useful links are listed below:
+At first glance, R Markdown appears to be a fairly simple mark-up language whose _raison d'etre_ is to enable the embedding of "live" R code into web pages and other hypertext-compatible documents. 
 
+Some useful links are listed below:
 
 [Repository page](https://github.com/jkruohon/IODS-project)
 
