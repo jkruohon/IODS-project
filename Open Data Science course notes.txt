@@ -1,49 +1,50 @@
-joku slack-ryhm‰ jossa tapahtuisi huomattava osa kurssin kommunikaatiosta. sinne on ensin saatava kutsu jossa voi liitty‰.
+"transcode it into utf-8" !!!
+joku slack-ryhm√§ jossa tapahtuisi huomattava osa kurssin kommunikaatiosta. sinne on ensin saatava kutsu jossa voi liitty√§.
 
-github tunnus jkruohon yliopistos‰hkˆpostisalasana sama kuin yliopistos‰hkˆpostissa 16-17 lukuvuonna.
+github tunnus jkruohon yliopistos√§hk√∂postisalasana sama kuin yliopistos√§hk√∂postissa 16-17 lukuvuonna.
 
-!!KOETTA EI OLE!! CONTINUOUS ASSESSMENT!!!! oletettavasti datacamp-, rstudio-, ja vertaisarviointiteht‰vien mukaan.
-datacamp -teht‰v‰t teht‰v‰ takarajaan menness‰, VAIKUTTAVAT ARVOSANAAN!
-Rstudio-teht‰v‰t teht‰v‰ takarajaan menness‰, VAIKUTTAVAT ARVOSANAAN!
+!!KOETTA EI OLE!! CONTINUOUS ASSESSMENT!!!! oletettavasti datacamp-, rstudio-, ja vertaisarviointiteht√§vien mukaan.
+datacamp -teht√§v√§t teht√§v√§ takarajaan menness√§, VAIKUTTAVAT ARVOSANAAN!
+Rstudio-teht√§v√§t teht√§v√§ takarajaan menness√§, VAIKUTTAVAT ARVOSANAAN!
 
 korp.csc.fi
 blogs.helsinki.fi/computationalsocialscience <- pyyttonia automatisoituun datanhakuun.
-arho toikka skreippaa facebookkia ja twitteri‰ R:ll‰.
-scraping on termi sille ett‰ otetaanvain teksti.
-netvizz   jokin ‰ppi jolla myˆs voi skreipata juttuja.
+arho toikka skreippaa facebookkia ja twitteri√§ R:ll√§.
+scraping on termi sille ett√§ otetaanvain teksti.
+netvizz   jokin √§ppi jolla my√∂s voi skreipata juttuja.
 
 useful resources -> cheatsheets -> visualization cheatsheet (ggplot2) OHOO!!
 
 COLNAMES() #antaa suoraan nimet dataframen sarakkeille (vektoreille) !!!
-#dplyr-libraryn filter-komento hyv‰
+#dplyr-libraryn filter-komento hyv√§
 filter(dataframennimi,looginenehto)
 eli esim filter(bncnews2015,variant=="MS")
 
-p1 <- ggplot(learning2014, aes(x = attitude, y = points,col=gender)) #tekee kuvan jossa x akselilla (jonkin attachoidun vektorin) sarake "attitude" ja y-akselilla (jonkin attachoidun vektorin) sarake "points" ja kuvaush‰rp‰kkeet (pisteet?? laatikot??) on v‰rj‰tty attachoidun dataframen sarakkeen "gender" mukaan.
-p2 <- p1 + geom_point() #m‰‰ritt‰‰ ggplot2:lla ett‰ p1:n kuvausmetodiksi tulee hajontakuvio
-p3 <- p2 + geom_smooth(method = "lm") #m‰‰ritt‰‰ ett‰ p2:een lis‰t‰‰n regressiosuora
+p1 <- ggplot(learning2014, aes(x = attitude, y = points,col=gender)) #tekee kuvan jossa x akselilla (jonkin attachoidun vektorin) sarake "attitude" ja y-akselilla (jonkin attachoidun vektorin) sarake "points" ja kuvaush√§rp√§kkeet (pisteet?? laatikot??) on v√§rj√§tty attachoidun dataframen sarakkeen "gender" mukaan.
+p2 <- p1 + geom_point() #m√§√§ritt√§√§ ggplot2:lla ett√§ p1:n kuvausmetodiksi tulee hajontakuvio
+p3 <- p2 + geom_smooth(method = "lm") #m√§√§ritt√§√§ ett√§ p2:een lis√§t√§√§n regressiosuora
 p4 <- p3 + ggtitle("Student's attitude versus exam points")
 
-#n‰in t‰m‰ ggplot2 iteratiivisesti toimii.
+#n√§in t√§m√§ ggplot2 iteratiivisesti toimii.
 
-pairs(dataframe[sarakkeet],col=dataframe$sarake) #piirt‰‰ hajontakuvan jokaisesta... dataframen jokaisesta sarakeparista PAITSI JOS HAKASULKEIDEN SISƒƒN ASETETAAN SARAKKEILLE RAJOITTEITA TAI EHTOJA. col-argumentti kertoo mink‰ sarakkeen sis‰llˆn mukaan kuvaajajutut eli pisteet tai viivat v‰ritet‰‰n.
+pairs(dataframe[sarakkeet],col=dataframe$sarake) #piirt√§√§ hajontakuvan jokaisesta... dataframen jokaisesta sarakeparista PAITSI JOS HAKASULKEIDEN SIS√Ñ√ÑN ASETETAAN SARAKKEILLE RAJOITTEITA TAI EHTOJA. col-argumentti kertoo mink√§ sarakkeen sis√§ll√∂n mukaan kuvaajajutut eli pisteet tai viivat v√§ritet√§√§n.
 
-ILMEISESTI MY÷S GGally-kirjastoa tarvittaisiin n‰iden tekemiseen ggplot2:lla!!!
+ILMEISESTI MY√ñS GGally-kirjastoa tarvittaisiin n√§iden tekemiseen ggplot2:lla!!!
 
 p <- ggpairs(learning2014, mapping = aes(col=gender,alpha=0.3), lower = list(combo = wrap("facethist", bins = 20))) #
 
-ggpairs(learning2014, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20))) #tekee saman mutta 3x hienostuneempi ja informatiivisempi kuvaaja!! aes-argumentin sis‰‰n nimet‰‰n sarakkeet. wrap ja bins-argumenttien merkityksest‰ en ole viel‰ aivan varma.
+ggpairs(learning2014, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20))) #tekee saman mutta 3x hienostuneempi ja informatiivisempi kuvaaja!! aes-argumentin sis√§√§n nimet√§√§n sarakkeet. wrap ja bins-argumenttien merkityksest√§ en ole viel√§ aivan varma.
 p <- ggpairs(learning2014, mapping = aes(col=gender,alpha=0.3), lower = list(combo = wrap("facethist", bins = 20))) #WOW!!!
 
 #eli lineaariregression tulosteen (ilman kuvaajaa), sen joita katseltiin johdatus 2 -kurssilla, antaa seuraava komento:
-summary(lm(selitett‰v‰muuttuja ~ selitt‰v‰muuttuja1 + selitett‰v‰muuttuja2 + selitett‰v‰muuttuja3, data=dataframejossakaikkin‰m‰tiedotovat))
-#tuo varsinainen lm()-funktion tuottama objekti sis‰lt‰‰ dataa mutta ei ilmeisesti ole kovin esityskelpoinen.
-sit‰ lm(n) tuotosta voidaan myˆs syˆtt‰‰ plot():lle argumentiksi niin saadaan niit‰ lineaarisen regression erilaisia diagnostiikkakuvia. plot(lm_object,which=1) esim antaa residuals vs fitted values -diagnostiikkakuvan eli sen jossa viiva menee keskell‰ ja residuaalit heiluvat sen yl‰- ja alapuolella. whichin argumentiksi c(2,4,6) jos halutaan piirr‰tt‰‰ kolme eri diagnostiikkakuvaa putkeen.
+summary(lm(selitett√§v√§muuttuja ~ selitt√§v√§muuttuja1 + selitett√§v√§muuttuja2 + selitett√§v√§muuttuja3, data=dataframejossakaikkin√§m√§tiedotovat))
+#tuo varsinainen lm()-funktion tuottama objekti sis√§lt√§√§ dataa mutta ei ilmeisesti ole kovin esityskelpoinen.
+sit√§ lm(n) tuotosta voidaan my√∂s sy√∂tt√§√§ plot():lle argumentiksi niin saadaan niit√§ lineaarisen regression erilaisia diagnostiikkakuvia. plot(lm_object,which=1) esim antaa residuals vs fitted values -diagnostiikkakuvan eli sen jossa viiva menee keskell√§ ja residuaalit heiluvat sen yl√§- ja alapuolella. whichin argumentiksi c(2,4,6) jos halutaan piirr√§tt√§√§ kolme eri diagnostiikkakuvaa putkeen.
 
-#jos ennen t‰t‰ plotin diagnostiikkakuvanpiirtofunktiokutsua laitetaan samalle riville komento 
+#jos ennen t√§t√§ plotin diagnostiikkakuvanpiirtofunktiokutsua laitetaan samalle riville komento 
 par(mfrow = c(2,2));
-#niin se ‰nke‰‰ kaikki X diagnostiikkakuvaa (pienennetyt versiot tosin) samalle ruudulle jotta niit‰ voisi paremmin vertailla. tuo 2,2 on ilmeisesti taulun-jolla diagnostiikkakuvat esitet‰‰n, x-paikkojen ja y-paikkojen m‰‰r‰.
+#niin se √§nke√§√§ kaikki X diagnostiikkakuvaa (pienennetyt versiot tosin) samalle ruudulle jotta niit√§ voisi paremmin vertailla. tuo 2,2 on ilmeisesti taulun-jolla diagnostiikkakuvat esitet√§√§n, x-paikkojen ja y-paikkojen m√§√§r√§.
 
-LEVERAGE OF OBSERVATIONS viittaa siihen, kuinka paljon/pahasti yksi havainto(yksikkˆ) vaikuttaa koko korrelaatiokertoimeen eli koko regressiosuoran kulmakertoimeen. jos esim yksi poikkeava havainto x-muuttujan jommassa kummassa ‰‰rip‰‰ss‰ antaa tosikorkean/tosimatalan y:n arvon, vaikuttaa se poikkeava havainto perkeleesti x:n regressiokertoimeen. sen sijaan jos tuo poikkeava ‰‰rimm‰inen y:n arvo sijaitsee x:n keskivaiheilla, ei vaikutus ole n‰in selke‰. koska se, ett‰ se sijaitsee keskikohdassa, ei ainakaan tarkoita ett‰ x:n suuret tai pienet arvot olisivat ennustusvoimaisia. (se voi tosin jossain tapauksessa tarkoittaa, ett‰ keskim‰‰riset x:n arvot olisivat ennustusvoimaisia, mutta t‰llˆin x:n ja y:n suhde ei olisi en‰‰ lineaarinen, eiks ni?
+LEVERAGE OF OBSERVATIONS viittaa siihen, kuinka paljon/pahasti yksi havainto(yksikk√∂) vaikuttaa koko korrelaatiokertoimeen eli koko regressiosuoran kulmakertoimeen. jos esim yksi poikkeava havainto x-muuttujan jommassa kummassa √§√§rip√§√§ss√§ antaa tosikorkean/tosimatalan y:n arvon, vaikuttaa se poikkeava havainto perkeleesti x:n regressiokertoimeen. sen sijaan jos tuo poikkeava √§√§rimm√§inen y:n arvo sijaitsee x:n keskivaiheilla, ei vaikutus ole n√§in selke√§. koska se, ett√§ se sijaitsee keskikohdassa, ei ainakaan tarkoita ett√§ x:n suuret tai pienet arvot olisivat ennustusvoimaisia. (se voi tosin jossain tapauksessa tarkoittaa, ett√§ keskim√§√§riset x:n arvot olisivat ennustusvoimaisia, mutta t√§ll√∂in x:n ja y:n suhde ei olisi en√§√§ lineaarinen, eiks ni?
 
 In R, predicting can be done using the predict() function. (see ?predict). The first argument of predict is a model object and the argument newdata (a data.frame) can be used to make predictions based on new observations. One or more columns of newdata should have the same name as the explanatory variables in the model object.  Sain.
