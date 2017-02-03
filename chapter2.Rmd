@@ -1,7 +1,145 @@
 # Linear Regression in R
 
-*Next week, this chapter shall contain a summary of what has been learned about correlating a continuous regressand with discrete and continuous predictors using R.*
+## 1. Reading the Data into R
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using  
+You can use **read.csv()** to read a comma-separated table (.csv) into R, but it does require prior installation of the __readr__ library. If you have RStudio, I warmly recommend using the interactive 'import dataset' menu instead.
+
+As an alternative, **read.table()** is more generic than **read.csv()** and comes with base R. You have to specify a lot more stuff with it, such as the cell separator character (sep=","). 
+
+`library(readr)`
+`learning2014 <- read_csv("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/learning2014.txt")`
+
+```{r, include=FALSE}
+library(readr)
+learning2014 <- read_csv("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/learning2014.txt")
+```
+
+## 2. Surveying and Visualizing the Data
+
+Here are some ways to overview the data, which is always a good first step:
+
+Show the dimensions of the data frame:
+
+`dim(learning2014)` 
+```{r,echo=T}
+dim(learning2014)
+```
+
+Print a summary of its variables (columns):
+
+`summary(learning2014)`
+```{r,echo=T}
+summary(learning2014)
+```
+
+The following command opens a new window (or tab) in which you can interactively browse and explore the dataset (though if you're using a pop-up blocker you'll likely see nothing):
+
+`View(learning2014)`
+
+```{r, echo=TRUE}
+View(learning2014)
+```
+
+This dataset was apparently collected to investigate links between academic performance (variable "points") and various personality and demographic factors. As is customary, each row represents one person from whom these variables were measured.
+
+### 2.1. Analyzing the Data with Pretty Scatter Plots
+
+The following libraries are needed for the prettiest charts and graphs:
+
+`library(ggplot2)`
+
+`library(GGally)`
+
+Let's print out a hugely informative array of plots:
+
+`ggpairs(learning2014, mapping = aes(col=gender,alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))`
+```{r, echo=TRUE}
+library(ggplot2)
+library(GGally)
+ggpairs(learning2014, mapping = aes(col=gender,alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
+```
+
+This __ggpairs()__ is a more advanced and sophisticated alternative to base R's __pairs()__. What both do is draw a scatter plot correlating each pair of variables found in the dataframe (or just the pairs that the user specifies).
+
+No highly obvious correlations emerge from the scatter plots. One predictable association can be discerned -- namely, the one between exam scores and attitude towards the subject. The plot also seems to suggest a very slight negative correlation between _age_ and _points_. Thirdly, a glance at the correlation coefficients reveals that predictor _surf_ has the second-highest absolute value (distance from zero) after _attitude_. We'll include these three explanatory variables in our linear regression analysis.
+
+## 3. Correlating _points_ with _attitude_, _age_, and _surf_ using Linear Regression
+
+Linear regression measures correlation between a continuous outcome variable (AKA regressand or y variable) and one or more input variables, or predictors or x-variables, which can likewise be continuous but do not have to be. In linear regression we test the hypothesis that the outcome variable is a function, firstly, of each predictor multiplied by their regression coefficients and, secondly, an error term representing the distance by which the model fails to match the exact behavior of the outcome variable.
+
+`summary(lm(points ~ attitude + age + surf, data=learning2014))`
+```{r, echo=TRUE}
+summary(lm(points ~ attitude + age + surf, data=learning2014))
+```
+
+Perhaps the most important figures in this printout are:
+
+1. The _Estimate_ column, which estimates how much (and in what direction) the regressand's the value changes when a given predictor's value changes by 1 unit.
+2. The _Pr(>|t|) column_, which measures the statistical significance of each predictor, and 
+3. The _Multiple and Adjusted R-squared_ values, which reflect the overall prediction power of the model.
+
+As common sense suggests, _attitude_ shows the strongest correlation with _points_. The effect is statistically significant at the highest level. Age and surface learning also show an effect, but their effects do not reach the required .05 level of statistical significance. It is very important to note, however, that _attitude_ comes much closer to statistical significance than _surf_ even though the absolute value of its regression coefficient is much smaller. What's going on? 
+
+```{r, echo=FALSE}
+cat(sep="","\n\n\n\n\n\t<think break>","\n\n\n\n\n\t")
+```
+
+These figures reflect the fact that _surf_ and _age_ are measured on different scales. Surface learning ranges only from 1 to 5, while age (in our dataset) ranges from 17 to 55. Although a change by one single unit in _surf_ is more consequential than a change of one year in _age_, the latter variable has much more explanatory power when its entire range of variation is taken into consideration. 
+
+Remember that my eye caught the correlative pattern in the _points_ by _age_ scatter plot but not in _age_ by _surf_? This is a good example of how graphical presentations of data are often more informative than cold numbers, demonstrating the wisdom of Kimmo's "always draw plots" principle.
+
+However, both _age_ and _surf_ must now be dropped from the model due to their statistically non-significant effect.
+
+## 4. Removing the Non-Significant Predictors and Interpreting the Model
+
+`summary(lm(points ~ attitude, data=learning2014))`
+```{r, echo=TRUE}
+summary(lm(points ~ attitude, data=learning2014))
+```
+
+The _Residuals_ table quantifies the error term. For example, the worst overestimation of the model is by almost 17 points (this student massively underachieved compared to the model prediction), while the worst overestimation is by 10 points (this student exceeded the model's expectations by 10 exam points).
+
+_Intercept_ reports the point at which the model intersects the Y axis. We might also think of it as the value of the outcome variable before the effects of any explanatory variable have been modeled.
+
+I'm not entirely sure precisely what the _Std.Error_ column measures. My guess is that it might reflect the average amount by which the predictions based on _attitude_ * _Coefficient_ miss the real, observed change in _points_.
+
+The column entitled _t-value_ report the _t test statistic_. Bigger is better (more significant), but the T-test always requires the Degrees of Freedom to be factored into the equation. It is thus not an entirely straightforward indicator of predictor significance -- that is what the _Pr(>|t|)_ value is for. If the _Pr(>|t|)_ value has either a dot or asterisks next to it, then that predictor is considered statistically significant. 
+
+I'm not sure what exactly is measured by _Residual standard error_, although it clearly somehow measures the variance of the residuals.
+
+_Multiple R-squared_ indicates the percentage of the overall variation in _points_ that can be predicted by all the predictors included in the model together. Here, _attitude_ is the only one. _Adjusted R-squared_ is an estimate of _R-squared_ that penalizes for too many predictors -- therefore its value here (with only one predictor) is nearly identical to un-adjusted _R-squared_.
+
+The _F-statistic_ tests the highly skeptical hypothesis that the model has zero statistically significant predictive power. This hypothesis usually, as now, is proven false, as indicated by the extremely small p-value.
+
+## 5. Diagnostic Plots
+
+`plot(lm(points ~ attitude, data=learning2014),which=1) `
+```{r, echo=TRUE}
+plot(lm(points ~ attitude, data=learning2014),which=1) 
+```
+
+Residuals vs Fitted plotting is used to analyze whether there is any systematic pattern to the model error. Such a pattern would be bad news because it would cast doubt on one of the crucial premises of linear regression, namely, that the variance of the residuals is random. Now we can see slight heteroscedasticity in the model, i.e. the model appears to predict high exam scores slightly more reliably than low ones. This pattern is weak and only barely discernible though.
+
+
+
+
+
+
+
+`plot(lm(points ~ attitude, data=learning2014),which=2)`
+```{r, echo=TRUE}
+plot(lm(points ~ attitude, data=learning2014),which=2) 
+```
+
+Q-Q plots are used to analyze the validity of another model assumption -- that the residuals of the model are normally distributed. In an ideal case, the observations (dots) would align neatly along a straight line. Now we can see that this is not entirely the case -- large negative residuals are more frequent than expected, while large positive residuals are less frequent than expected.
+
+
+
+
+
+`plot(lm(points ~ attitude, data=learning2014),which=5)`
+```{r, echo=T}
+plot(lm(points ~ attitude, data=learning2014),which=5) 
+```
+
+This plot illustrates Leverage, i.e. how influential each observation (data point) is in determining the x-variable's regression coefficient. The idea is to ascertain that there are no outliers skewing the model, i.e. exerting a massive impact  on the angle of the regression line. Any highly unusual observation at either extreme of the x-variable's distribution is potentially an influential outlier. In our case, we can see that no hugely influential observations exist -- the scale of the leverage goes only from 0 to about .05, so there are practically no outliers with disproportionate leverage.
