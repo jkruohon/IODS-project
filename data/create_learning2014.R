@@ -8,6 +8,11 @@ View(learning2014) #view it
 #The rest are independent (explanatory) variables. The columns with weird names are probably different sections/questions of the survey. 
 #Likely, "Attitude" is a combination variable calculated from the sum or mean of all or some of these questions.
 
+#!!NB!! I did not use the dplyr library for the following tasks!
+#I find R's built-in subsetting function [] to be quite adequate for the job.
+#So if you expected to see dplyr used here and don't understand the code, 
+# try it out in RStudio (or wherever you want) to see that it works.
+
 lrn2014<-learning2014[learning2014$Points!=0,] #exclude rows where Points is zero
 
 lrn2014$Deep<-rowMeans(lrn2014[,c("D03","D11","D19","D27","D07","D14","D22","D30","D06","D15","D23","D31")]) 
