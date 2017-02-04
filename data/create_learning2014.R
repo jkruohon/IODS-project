@@ -1,6 +1,6 @@
 #author: Juho Ruohonen, date: 17/2/2, description: theme2 exercise 1
 
-learning2014 <- read_delim("http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt", "\t", escape_double = FALSE, trim_ws = TRUE) 
+library(readr); learning2014 <- read_delim("http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt", "\t", escape_double = FALSE, trim_ws = TRUE) 
 #Import the dataset into R
 View(learning2014) #view it
 

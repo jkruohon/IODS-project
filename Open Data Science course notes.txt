@@ -25,7 +25,7 @@ p2 <- p1 + geom_point() #määrittää ggplot2:lla että p1:n kuvausmetodiksi tu
 p3 <- p2 + geom_smooth(method = "lm") #määrittää että p2:een lisätään regressiosuora
 p4 <- p3 + ggtitle("Student's attitude versus exam points")
 
-#näin tämä ggplot2 iteratiivisesti toimii.
+#näin tämä ggplot2 iteratiivisesti toimii. joo eli se (kai) piirtää kuvan.  mutta iteratiivinen käyttö on sitä että piirretty kuva ammutaan johonkin objektiin objekti<- komennolla. sitten seuraava parannettu kuva tehdään käskemällä objekti + geom_smooth()     (tms)  joka sekin piirtää kuvan mutta ei vielä säilö sitä mihinkään ellemme käske objekti2<-objekti + geom_smooth()
 
 pairs(dataframe[sarakkeet],col=dataframe$sarake) #piirtää hajontakuvan jokaisesta... dataframen jokaisesta sarakeparista PAITSI JOS HAKASULKEIDEN SISÄÄN ASETETAAN SARAKKEILLE RAJOITTEITA TAI EHTOJA. col-argumentti kertoo minkä sarakkeen sisällön mukaan kuvaajajutut eli pisteet tai viivat väritetään.
 
@@ -48,10 +48,52 @@ par(mfrow = c(2,2));
 
 LEVERAGE OF OBSERVATIONS viittaa siihen, kuinka paljon/pahasti yksi havainto(yksikkö) vaikuttaa koko korrelaatiokertoimeen eli koko regressiosuoran kulmakertoimeen. jos esim yksi poikkeava havainto x-muuttujan jommassa kummassa ääripäässä antaa tosikorkean/tosimatalan y:n arvon, vaikuttaa se poikkeava havainto perkeleesti x:n regressiokertoimeen. sen sijaan jos tuo poikkeava äärimmäinen y:n arvo sijaitsee x:n keskivaiheilla, ei vaikutus ole näin selkeä. koska se, että se sijaitsee keskikohdassa, ei ainakaan tarkoita että x:n suuret tai pienet arvot olisivat ennustusvoimaisia. (se voi tosin jossain tapauksessa tarkoittaa, että keskimääriset x:n arvot olisivat ennustusvoimaisia, mutta tällöin x:n ja y:n suhde ei olisi enää lineaarinen, eiks ni?
 
-In R, predicting can be done using the predict() function. (see ?predict). The first argument of predict is a model object and the argument newdata (a data.frame) can be used to make predictions based on new observations. One or more columns of newdata should have the same name as the explanatory variables in the model object.  Sain.
+In R, predicting can be done using the predict() function. (see ?predict). The first argument of predict is a model object and the argument newdata (a data.frame) can be used to make predictions based on new observations. One or more columns of newdata should have the same name as the explanatory variables in the model object.  Sain. if the oucome variable is binary, one must use the type="response" argument. this gives the predictions as probabilities of the response variable being 1 for each unit of observation.
 
 GitHubin verkkoversiossa luodaan uusi hakemisto tekemällä uusi file ja antamalla sille nimeksi uusihakemisto/symbolinenuusitiedostojokatehtiinvainjottauusihakemistosaataisiinluoduksi.txt
 
 En voi väittää täysin ymmärtäväni, mitä dplyrin inner_join(by = sarakkeet) -funktio tekee. Se näyttäisi ottavan kahden dataframen by - parametrin täsmentämistä sarakkeista kaikki tiedot ja yhdistävän ne yhteen ja samaan dataframeen. jos ja kun sarake "tulot" ei ole identtinen näissä kahdessa dataframessa, niin silloin tämä funktio tekee siitä yhdistelmädataframeen kaksi saraketta: tulot.A ja tulot.B. Eli tämä funktio näyttäisi yhdistävän kaksi dataframea siten, että mitään "uniikkia" dataa noista by:n täsmentämistä sarakkeista ei häviä. Näin syntyy lähes väistämättä uusia sarakkeita uuteen dataframeen. Vielä en kuitenkaan intuitiivisesti hiffaa, mitä suurta hyötyä tästä on.
 
 dplyrin glimpse() näyttäisi olevan hyvin samantapainen kuin perus-R:n summary(dataframennimi) mutta ehkäpä informatiivisempi?!?
+
+En ole laisinkaan vieläkään varma mitä nuo Joinit tekevät. Luulisin, että perusperiaate on tämä: On kaksi eri taulukkoa joiden sarakkeet mittaavat eri asioita. Osa (tai jopa kaikki)näiden taulukoiden tietueista (riveistä) on kuitenkin peräisin samasta havaintoyksiköstä. Ne siis koskevat samaa havaintoyksikköä, mutta raportoivat siitä eri tietoja. Tällöin voi olla hyödyllistä suorittaa Inner Join eli Merge. Se toimii sillä periaatteella, että taulukoilla on ainakin 1 samaa asiaa mittaava sarake. Tyypillisimmin tämä olisi esim. "tunnistenumero" eli havaintoyksikön uniikki tunniste. Kun käskemme merge(taulukkoA,taulukkoB,by="tunnistenumero"), yhdistää R (tai tietokantasovellus) nämä taulukot siten, että yhtä tunnistenumeroa käsitellään yhtenä havaintoyksikkönä. Esim jos molemmissa taulukoissa on tietue jonka tunnistenumero on 100, tehdään yhdistettyyn taulukkoon myös rivi jonka tunnistenumero on 100, ja siihen otetaan kunkin tunnistenumeron kohdalta kaikki sarakkeet molemmista taulukoista. Eli siihen otetaan kaikilta jaetuilta tunnistenumeroilta kaikki mahdollinen data molemmista taulukoista. Jos molemmissa taulukoissa on samalla tavalla nimettyjä sarakkeita JOITA EI OLE TÄSMENNETTY BY-ARGUMENTISSA, niin silloin R (tmv) laittaa yhdistettyyn taulukkoon kyseisen sarakkeen molemmista taulukoista, mutta antaa sen nimelle päätteen, joka kertoo, kummasta alkuperäisestä taulukosta tämän sarakkeen data on peräisin. SEN SIJAAN jos tällainen yhteinen sarake onkin mukana by-argumentin sarakelistassa, niin silloin siitä tehdään vain yksi kopio uuteen yhdistettyn taulukkoon. 
+
+Ahaa nyt luulen hiffanneeni. by-argumentti täsmentää sen sarakkeen tai ne sarakkeet, joiden oletetaan uniikilla tavalla tunnistavan tietueen. joten tällainen JOIN valitsee uuteen yhdistettyyn taulukkoon vain ne tietueet (rivit), joiden kohdalla by-argumentin täsmentämien sarakkeiden muodostama arvojono on täysin identtinen. Jos tälaisia by-argumentin täsmentämien sarakkeiden tuottamia identtisiä arvojonoja ei alkuperäistaulukoiden välillä ole yhtäkään, silloin yhdistelmätaulukkoon ei tule yhtäkään riviä.
+
+dplyrin inner_join ja R:n merge näyttäisivät tekevän kyllä samat asiat, mutta lajittelevan tietueet eri kriteereillä. Yksi voittopuoli dplyrissä on se, että se sallii täsmentää samannimisille mutta ei by-argumentin sisältämille sarakkeille päätteen. merge antaa automaattisesti .x ja .y jne. tosin merge.data.frame korjaa tämän puutteen.
+
+NOJOO YKSI HYVÄ ASIA dplyristä löytyy ainakin. se antaa valita sarakkeita starts_with -argumentilla etsii kolonnia joiden nimet alkavat jollain merkkijonolla. tämä on hyödyllistä silloin, kun ne nimet otetaan vektorista, koska perus R:llä "alkaminen" pitäisi täsmentää grepillä ja ^:llä, joka on hankalaa jos ne nimet tosiaan otetaan vektorista. ellei olla etukäteen pastetettu se ^ etuliitteeksi niille nimivektorien nimille.
+
+MELKEIN SANOISIN ETTÄ KAIKKI TÄMÄN KURSSIN DATACAMP-KOODI KOMMENTTEINEEN KANNATTAA KOPIOIDA JOHONKIN TIEDOSTOON. TUO MUTATE-KOMENTOKIN VAIKUTTAA HYÖDYLLISELTÄ JA NÄPPÄRÄLTÄ, VAIKKA TOKI SEN VOI PERUS-R:LLÄKIN TEHDÄ. KUITENKIN SIINÄ ON SE HUOMATTAVA ETU, ETTÄ SE PYYTÄÄ EKAKSI ARGUMENTIKSI DATAFRAMEN NIMEN JA SEN JÄLKEEN TAJUAA OLETTAA MUUT NIMET KO. DATAFRAMEN SISÄISIKSI OBJEKTEIKSI.
+
+# gather(df) ottaa dataframen ja raportoi sen joka-ikisen solun kolonnan ja arvon. se muodostaa dataframesta siis kaksisarakkeisen dataframen, jossa kukin havainto eli solu on muutettu yhdeksi kaksiulotteiseksi yhdistelmäksi: "kolonnannimi" + "arvo".
+
+tidyr-library sallii tehdä niin, että jonkinfunktiontuote %>% uusifunktio(argumentti2,argumentti3)   syöttää uusifunktio-funktiolle ensimmäiseksi argumentiksi automaattisesti jonkinfunktiontuotteen ja ajaa sen samantien.
+
+gplyrin group_by SAATTAA OLLA hyödyllinen komento.  joo on.  group_by(dataframe, ekaluokittelukriteeri, tokaluokittelukriteeri, kolmasluokittelukriteeri) .  taitaa olla kätevämpi kuin perus-R:n split tms.
+
+näen että yhdistettyinä group_by ja summarise voivat olla hyvinkin hyödyllisiä mutta en vielä aivan hahmota miten tuo jälkimmäinen niistä toimii.
+
+IQR inter-quantile range.  jonka väliin sijoittuvat havainnoista keskimmäisimmät 50% eli  alimmista 26%:sta ylimpään 70%:ään.
+
+perus binäärilogistinen malli: glm(selitettävä + selittävä1 + selittävä2 + selittävä3, data = dataframejostatiedotsaadaan, family = "binomial") 
+tietenkään tämä ei vielä mitään piirrä vaan rakentaa vain datan. summary(malli) piirtää tutunnäköisen kuvan. coef(malli) raportoi pelkät kertoimet. eli tässähän 0 ei suosi eikä hylji, positiiviset arvot suosivat ja negatiiviset hylkivät.
+
+confint(malli) laskee kertoimille luottamusvälit.
+
+probability = todennäköisyys. vaihteluväli 0-1
+odds = "onnistumisen" todennäköisyyden ja "epäonnistumisen" todennäköisyyden välinen suhde. esim 0.6/0.4 = 1.5. vaihteluväli 0-ääretön
+odds ratio = kahden selittävän muuttujan eri arvon oddsien suhde toisiinsa. tämä saadaan logistisen regression "kertoimesta" korottamalla 2.718 "kertoimen" näyttämään potenssiin.
+
+odds (en tiedä onko suomennosta) lasketaan näin:  jos 75 miestä 100sta on juoppoja ja 25raittiita, niin lasketaan 75/25 ja saadaan miesten juoppous-oddsiksi 3/1.
+naisten odds olisi vastaavasti... jaa-a. mutta jos otetaan miesten komplementiksi naiset. ja heistä sadasta juoppoja on 40 ja raittiita 60. niin odds on 2/3.
+ODDS-RATIO puolestaan saadaan jakamalla miesten odds naisten oddsilla eli 3/1 / 2/3  josta tulee 4.5.  mitä se sitten tarkoittaakaan. se tarkoittaa että miehillä on 4.5 kertainen riski olla juoppoja verrattuna naisiin. tietenkin. verrattuna naisiin. ei ylipäätään vaan verrattuna.
+
+
+logistisen regression kertoimet eivät ole samalla tavalla transparentteja kertoimia kuin ne ovat lineaariregressiossa. vaan ne kertovat korrlaatiosta vasta välillisesti. ne ovat nimittäin "log of odds" -lukuja.  log of odds tarkoittaa odds-ration luonnollista logaritmia eli sitä potenssia, johon 2.718 täytyy korottaa, jotta saadaan odds-ratio. varsinainen odds-ratio siis saadaan näistä luvuista korottamalla 2.718 niiden potenssiin. näin saatava luku eli odds-ratio (riskiluku?) ilmoittaa, millä kertoimella "riski" saada selitettävän muuttujan arvoksi 0:n sijasta 1 muuttuu, kun selitettävän muuttujan arvo muuttuu yhden mittayksikön. Se vaihtelee nollasta äärettömään. 0 tarkoittaa että yhden mittayksikön muutos selittäjässä tarkoittaa varmuudella sitä, että selitettävän muuttujan arvoksi tulee 0. 5 taas tarkoittaa, että "riski" viisinkertaistuu.  koska logodds-luku on luonnollinen logaritmi eli kertoo eksponentin, se voi vaihdella negatiivisen äärettömän ja positiivisen äärettömän välillä, koska isokaan negatiivinen eksponentti ei koskaan saa lopputulosta nollan alapuolelle. suuri negatiivinen logodds tarkoittaa, että 2.718 tulee korottaa tähän valtavaan negatiiviseen potenssiin, jotta saadaan odds ratio. siten esim loggodds -10 tarkoittaa, että odds ratio on 1/2.718^10. Toisin sanoen yhden yksikön muutos selittäjässä kertoo "riskin" saada selitettävän arvoksi 1 1/2.718^10:llä eli käytännössä poistaa "riskin".
+exp(logodds-luku) laittaa logodds-luvun (tai minkä tahansa muunkin luvun) automaattisesti 2.718:lle eksponentiksi. tuo on muuten Neperin luku tuo 2.718 ja 2.718 on vain likiarvo.
+
+confint(malli) laskee logistisen mallin mutta veikkaisin että miksei myös lineaarisenkin mallin kertoimille LUOTTAMUSVÄLIT. jos kyseessä on logistinen malli eli glm(family="binomial") niin silloin kyseessä on tietenkin ln of odds-lukujen luottamusvälit.
+
+jos on joku numerovektori numerot niin voimme muodostaa toisen SAMANPITUISEN loogisen (ehkä muunkinlaisen) vektorin sen arvoista esim näin:
+kannanottovektori = numerovektori>=0.6    tällöin kannanottovektori saa arvon TRUE jos numerovektorin vastaava elementti on kuusi tai isompi, muutoin taas se saa arvokseen FALSE.
