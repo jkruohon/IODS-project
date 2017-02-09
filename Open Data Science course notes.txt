@@ -99,3 +99,5 @@ jos on joku numerovektori numerot niin voimme muodostaa toisen SAMANPITUISEN loo
 kannanottovektori = numerovektori>=0.6    tällöin kannanottovektori saa arvon TRUE jos numerovektorin vastaava elementti on kuusi tai isompi, muutoin taas se saa arvokseen FALSE.
 
 muista, että AIC-luku ilmeisesti TOIMII VERTAILULUKUNA VAIN SILLOIN, KUN RASKAAMPI VERROKKIMALLI SISÄLTÄÄ KAIKKI SAMAT MUUTTUJAT KUIN YKSIKERTAISEMPI MALLI + MUITA. JOS YKSINKERTAISEMMASSA MALLISSA ON MUUTTUJIA, JOITA RASKAAMMASSA EI OLE, NIIN ????
+
+ridge logistics regression lasso regression lars regression ovat kuulemma sellaisia, jotka osaavat automaattisesti rajoittaa kollineaarisuuden vaikutusta mallissa.
