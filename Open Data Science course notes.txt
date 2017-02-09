@@ -101,3 +101,5 @@ kannanottovektori = numerovektori>=0.6    tällöin kannanottovektori saa arvon 
 muista, että AIC-luku ilmeisesti TOIMII VERTAILULUKUNA VAIN SILLOIN, KUN RASKAAMPI VERROKKIMALLI SISÄLTÄÄ KAIKKI SAMAT MUUTTUJAT KUIN YKSIKERTAISEMPI MALLI + MUITA. JOS YKSINKERTAISEMMASSA MALLISSA ON MUUTTUJIA, JOITA RASKAAMMASSA EI OLE, NIIN ????
 
 ridge logistics regression lasso regression lars regression ovat kuulemma sellaisia, jotka osaavat automaattisesti rajoittaa kollineaarisuuden vaikutusta mallissa.
+
+AINA ENNEN KUIN KÄYTETÄÄN SAMPLEA TAI MITÄ TAHANSA MUUTA RNG-TÄ HYÖDYNTÄVÄÄ FUNKTIOTA, jos ajoa ennen tehdään set.seed(10)  niin se RNG:tä käyttävät funktio tekee randomoinnin joka kerta samalla tavalla!!!!!!!
