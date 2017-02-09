@@ -78,7 +78,7 @@ Perhaps the most important figures in this printout are:
 2. The _Pr(>|t|) column_, which measures the statistical significance of each predictor, and 
 3. The _Multiple and Adjusted R-squared_ values, which reflect the overall prediction power of the model.
 
-As common sense suggests, _attitude_ shows the strongest correlation with _points_. The effect is statistically significant at the highest level. Age and surface learning also exert an effect, but their respective effects do not reach the required .05 level of statistical significance. It is very important to note, however, that _attitude_ comes much closer to statistical significance than _surf_ even though the absolute value of its regression coefficient is much smaller. What's going on? 
+As common sense suggests, _attitude_ shows the strongest correlation with _points_. The effect is statistically significant at the highest level. Age and surface learning also exert an effect, but their respective effects do not reach the required .05 level of statistical significance. It is very important to note, however, that _age_ comes much closer to statistical significance than _surf_ even though the absolute value of its regression coefficient is much smaller. What's going on? 
 
 ```{r, echo=FALSE}
 cat(sep="","\n\n\n\n\n\t<think break>","\n\n\n\n\n\t")

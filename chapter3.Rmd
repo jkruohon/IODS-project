@@ -1,0 +1,442 @@
+#Logistic Regression in R  
+  
+Welcome to the logistic regression chapter! Here we will practise predicting categorical outcomes, which are trickier to model than continuous ones because they require us to calculate probabilities. Probabilities do not range between negative and positive infinity like continuous response variables tend to, so in order to make the regression coefficients more analogous to those in linear regression, we need a link function inbetween. We'll start by importing our training dataset into R:  
+  
+  
+  
+`alcohol<-read.table(file = "drunkards.txt", sep = "\t", header = TRUE, row.names = NULL)`  
+```{r, include=FALSE}
+alcohol<-read.table(file = "data/drunkards.txt", sep = "\t", header = TRUE, row.names = NULL)
+```
+  
+  This data was collected to analyze correlations between alcohol consumption and various social and demographic factors.  
+    
+## 1. My 4 Variables  
+  It was already seen in the Datacamp exercise that sex correlates heavily with drinking habits. This is unsurprising. The reasons behind the phenomenon are rather obvious and need not be discussed here. Therefore, I will leave this variable out of my own analysis and instead choose the following 4:  
+  
+  1. Age: a somewhat boring choice, but I wanted some predictors to be continuous; I predict that in the age range represented in the data, higher age correlates with more drunkenness
+  2. Reason: I predict that having chosen one's school due to its geographical closeness to home is an indicator of low study motivation and correlates with increased alcohol consumption
+  3. Studytime: I predict that weekly study time is inversely correlated with alcohol consumption
+  4. Romantic: I predict that being single correlates with increased alcohol consumption  
+  
+
+Let's see what we can find out.  
+    
+    
+###Predictor: age  
+  
+```{r}
+table(alcohol$age)
+```  
+  
+  I chose _age_ as one of the variables because I wanted some of my variables to be continuous. There are other continuous variables in the data -- such as grades and rates of failure and absence. However, I felt that these variables present serious chicken-or-egg problems for the interpretation of results: even if bad grades are found to correlate with high alcohol use, can we really claim that the bad grades came first, i.e., caused the drinking and not the other way around? I find such a premise questionable. _Age_ has no such problems: it is always the cause, never the effect (everyone grows older at the same rate regardless of their drinking habits).  
+  There are only 7 age groups in the dataset, two of which are so under-represented as to be basically negligible. There are very few students over the age of 18 in the dataset. Findings based on 11 observations or less are rarely statistically significant. We should be able to get something out of the data on the other age groups though.  
+  
+  We will start drawing pictures now. Let us therefore load __ggplot2__ into memory, as it seems to be more flexible and customizable than base R's graphics library.  
+  
+```{r}
+library(ggplot2)
+```
+ 
+ First, let's look at a bar chart of high alcohol use as function of age
+ 
+ 
+```{r}
+ggplot(data=alcohol, aes(alcohol$age, fill=alcohol$high_use)) + geom_bar(position = "dodge") + ylab("count") + ggtitle("High alcohol consumption as a function of age", subtitle="N = 382") + scale_alpha_continuous(breaks = min(alcohol$age):max(alcohol$age)) + xlab("age") + scale_x_continuous(breaks=15:22)
+```
+  
+  This is not a bad way to visualize the frequency of a phenomenon across groups. We can see that the proportion of heavy drinking seems highest in the 17-year-olds. However, since the age groups vary in size, I find comparison easier using a percent-stacked bar chart instead. The tradeoff is that we lose sight of the absolute group sizes:
+  
+```{r}
+ggplot(data=alcohol, aes(alcohol$age, fill=alcohol$high_use)) + geom_bar(position = "fill") + ylab("relative frequency") + ggtitle("High alcohol consumption as a function of age", subtitle="N = 382") + scale_x_continuous(breaks = min(alcohol$age):max(alcohol$age)) + xlab("age")
+```  
+  
+This shows us that my initial visual impression was inaccurate -- the 19-year-olds are proportionately (slightly) heavier drinkers than the 17-year-olds. This data could hardly be said to support the hypothesis that heavy alcohol consumption becomes more frequent with age, however. Rather, what seems to happen is that it increases for a couple of years after the first taste, then stabilizes in the late teens.  
+  
+  
+We could now assess the the statistical significance of these findings using the chi-squared test, but I'll move on to the next variable instead in order to leave some analysis for logistic regression to do.  
+  
+###Predictor: reason  
+  
+```{r}
+summary(alcohol$reason)
+```  
+  
+  This variable has a more convenient frequency distribution of levels (different values that it can have) than the previous one: no single one of its groups is grossly underrepresented the way some of the _age_ groups were. Now that we know that each group is sufficiently represented, let's visually assess their respective rates of high alcohol use:
+  
+  
+```{r}
+ggplot(data=alcohol, aes(alcohol$reason, fill=alcohol$high_use)) + geom_bar(position = "fill") + ylab("relative frequency") + ggtitle("Alcohol consumption and reason of school choice", "N = 382") + scale_x_discrete(labels=levels(alcohol$reason)) + xlab("Reason for having chosen one's current school")
+```  
+  
+  This variable appears to exert a significant effect! Contrary to my hypothesis, however, it is not the "home" group that exhibits the highest rate of heavy alcohol consumption -- it's the "other" group, i.e., the wastebasket category reserved for the miscellanea of observations not falling into any of the three "main" categories of this variable. It is unfortunate that the researchers have chosen not to record the information on these "other" reasons for choosing a school -- important information was lost with that decision. Other than that, the "home" group does indeed display an increased incidence of high use relative to the other explicitly defined groups.  
+    
+Again, we'll postpone further analysis to later stages.
+  
+###Predictor: studytime
+
+```{r}
+table(alcohol$studytime)
+```  
+  
+  Uh oh. Something goofy is afoot. What's up with the levels "1.5" and "2.5", and why are their frequencies so darn low? If we take a look at the [metadata](https://archive.ics.uci.edu/ml/datasets/STUDENT+ALCOHOL+CONSUMPTION), we see that _studytime_ was designed to be an ordinal variable with levels from 1 through 4. Then where have the intermediate levels 1.5 and 2.5 come from?  
+  
+  
+```{r, echo=FALSE}
+cat(sep="","<think break>\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n</think break>")
+```  
+  
+  
+They come from the Data Wrangling phase of this exercise, where the instructions were that whenever there were two observations of a given _numeric_ variable (one from each of the two original datasets), we had to use the mean of these two values in the new combined dataset. In my estimation, this is not a viable approach to _studytime_ because it is not a continuous variable. Its original levels were _less than 2 hours_, _2 to 5 hours_, _5 to 10 hours_ and _over 10 hours_ of weekly study. Since the levels are not evenly spaced, can we really calculate an average?  
+IMHO a better approach would have been to treat _studytime_ as essentially categorical, using only the value from the first of the source datasets (_students_mat_) whenever the two datasets differed. This would be methodologically consistent with the treatment of the other categorical (non-numeric) variables in the dataset.
+  
+Unfortunately, there is no easy way to identify which rows of the source dataset *student_mat* correspond to these goofy values, to use them as replacements. This is because the rows in the two source datasets lack a unique identifier field (which IMHO is a methodological error). Even the combination of 13 columns that we used as student identifiers when merging the columns is not reliable -- there are rows with identical sequences of values in these columns. Therefore, to replace the goofy _studytime_ values with the original integer ones from *student_mat*, I made a temporary adjustment to the code I had used to combine the two datasets in the previous section, simply adding one condition to the *for*-loop to give _studytime_ the same treatment as the non-numeric variables:  
+  
+`if (startsWith(colnames(two.columns)[1],"studytime")) {AlcoholConsumption[variable] <- two.columns[,1]}`  
+  
+```{r, include=FALSE}
+AlcoholConsumption<-read.table(sep="\t",header=T,file="alc_IntegerStudyTime.txt")
+```  
+  
+  
+The resulting column uses the original integer values from *student_mat*. We can now add it to our dataset as a new column. The old _studytime_ with the goofy decimal values will remain intact, however -- we're just bringing in a better alternative to it. This is a good rule of thumb when modifying existing variables -- always keep the original data too.
+  
+```{r}
+alcohol$studytime.adjusted <- AlcoholConsumption$studytime
+```
+
+Let's take a look at the contents of our new column:  
+
+```{r}
+table(alcohol$studytime.adjusted)
+```  
+  
+Much better. Now there are no ridiculously underrepresented groups. Having gotten started mutating variables, however, we should now make another little adjustment in order to render this data more informative -- this time without changing any of the actual values. Since _studytime_ and _studytime.adjusted_ are ordinal non-interval variables, it is not intuitively clear what their levels represent. In fact, the 1-4 scale is a bit misleading as it might lead us to assume that the levels are evenly spaced. This is easily fixed by converting our new _studytime.adjusted_ variable into a factor. A factor is a vector whose values are treated as categorical and can be named and ordered however we choose. In our case, we want to preserve the original ordering and simply name the levels informatively. This is easy in R:  
+  
+```{r, echo=TRUE}
+alcohol$studytime.factor <- as.factor(alcohol$studytime.adjusted) #Create a version of studytime.adjusted that is categorical
+levels(alcohol$studytime.factor) <- c("<2h","2-5h","5-10h",">10h") #Name its levels appropriately
+```
+  
+Now the frequency table looks like this.  
+  
+  
+  
+```{r}
+table(alcohol$studytime.factor)
+```  
+  
+  
+  
+  
+With these conversions made, let's take a look at how the data compares to our hypothesis that weekly study time is inversely correlated with risk of high alcohol use. Here's the percent-stacked bar chart.  
+  
+  
+  
+
+```{r}
+ggplot(data=alcohol, aes(alcohol$studytime.factor, fill=alcohol$high_use)) + geom_bar(position = "fill") + ylab("relative frequency") + ggtitle("High alcohol consumption as a function of weekly study time", "N = 382") + scale_x_discrete(labels=levels(alcohol$studytime.factor)) + xlab("weekly study time")
+```  
+  
+This data supports my fairly self-evident hypothesis that diligent students booze less than lazy ones.
+
+###Predictor: romantic 
+  
+Alcohol lowers inhibitions and boosts libido. This is why it has been a powerful aid in human pair-bonding for aeons. In fact, this might just be the most important reason it is used in the first place, whether people admit it or not. Therefore, the prediction that people who are in a relationship, i.e. have already pair-bonded, have less reason to use alcohol was a fairly obvious one to make. As a binary variable, this one should be the easiest of the four to analyze.  
+  
+  Contingency tables (aka cross-tabulations) are a handy way of assessing correlations between variables that can be represented in 3x3 or smaller tables. We use them a lot in linguistics, e.g. when assessing whether the frequency distribution of a categorical variable such as _that_-omission vs. _that_-retention has remained constant or changed between two time periods. High alcohol consumption as a function of relationship status is a virtually identical phenomenon from a methodological standpoint. We'll start by printing a contingency table of raw frequencies:
+
+  
+```{r}
+addmargins(table(alcohol$high_use, alcohol$romantic, dnn = c("high_use", "has_bf/gf")))
+```  
+  
+Hmm...not nearly as much of a difference as I expected. For a clearer picture, a table of _relative_ frequencies is useful:
+  
+```{r}
+round(prop.table(table(alcohol$high_use, alcohol$romantic, dnn=c("high_use","has_bf/gf")), 2), digits=2)
+```  
+  
+Students with a romantic partner do seem less likely to be heavy drinkers, but the difference is only 4 percentage points in this dataset. Now I'm _particularly_ tempted to test the significance of the effect with the chi-square test, but I'll refrain. Logistic regression should shed more light on all that.  
+  
+## 2. Binary Logistic Regression with 4 Independent Variables
+
+```{r}
+model<-glm(high_use ~ age + reason + studytime.factor + romantic, data = alcohol, family = "binomial") #Creates the model
+logodds<-coef(model) #Extracts and stores just the log of odds -values produced by the model
+ORs<-cbind(data.frame(Estimate = round(exp(logodds),digits=3)),round(exp(confint(model)),digits=3)) #Extracts and stores the odds ratios and their confidence intervals, rounded to 3 decimals, in an eye-friendly table
+summary(model) #Prints out the results of the model
+```  
+  
+  As we anticipated at the beginning, higher _age_ is shown to favor the probability of heavy alcohol use. The effect is significant at the .05 level. However, since only 4 different ages (15 through 18) are adequately represented, this is not much of a finding. It is to be expected that adults use more alcohol than kids. More interesting would be to look at the progression of people's drinking habits from early adulthood to middle age and  beyond, but that's another topic.
+  
+  
+My prediction on the effect of _reason_ proves somewhat too bold. I assumed that people who choose a school near their homes are uninspired students and likely heavier-than-average drinkers. In our dataset, having chosen your school based on its convenient location increases the risk of being a heavy drinker by 32%. Here are the odds ratios and their confidence intervals:
+```{r, echo=FALSE}
+ORs
+```  
+  
+  Though a 32% increase seems non-negligible, the effect falls way short of statistical significance. It is not a matter of a tiny sample either, since there were 110 people in this group. I guess I'll just say that some correlation was found but it wasn't strong enough to make confident statements.
+  
+  Something intriguing _was_ discovered with this variable, however. The students whose reason for picking the school they did was classified as "other" appear to be heavier drinkers than those with other reasons, and the effect is statistically significant at the .05 level. It is most unfortunate that the researchers did not document the "other" reasons. We are now left to speculate on what those other reasons might be and why they correlate with high alcohol consumption. Here's a hypothesis: most of the "other" reasons for choosing a school are that a particular girl/guy is attending it. And if one is willing to attend an inconveniently located school over a girl/guy, then it stands to reason that one is also willing to resort to other somewhat drastic measures -- such as liquid courage -- to get him/her.
+  
+  I was mostly right about _studytime_'s correlation with drinking habits. Compared to the reference group (<2h of study a week), each of the more studious groups proves less likely to be heavy drinkers. The strange thing is that it is not the people who study the most who drink the least -- the strongest disfavoring effect is found in those who study from 5 to 10 hours a week. Their risk of high alcohol use is a whopping 76% smaller (an odds ratio of .24) than that of the laziest students, and the effect is significant at the highest level (p < .001). The most studious group also shows a strong disfavoring effect at -69%. Technically speaking, effect falls slightly short of the critical value of statistical significance (its p-value is .052), but that can be attributed to the small sample size (only 27 students) of this group. Also note that the confidence interval of the group's Odds Ratio does not include 1! This is perhaps more intuitively undestood from the logodds table, which shows that the entire confidence interval of _studytime.factor>10h_ is in the negatives:
+```{r}
+round((confint(model)),digits=3)
+```
+  
+  It _is_ interesting, however, that it's not the most studious group that drinks the least. We might hypothesize that those who study 5-10h a week live happy, balanced lives and do not need to drink themselves silly to relax and have fun, whereas those who study massive amounts need more extreme measures, such as intoxicants, to unwind.
+  
+  Lastly, having a romantic partner proves statistically non-significant in predicting high alcohol use. The risk does decrease in a relationship, but only by 23%. P-value is .31; sample size is in the triple digits, i.e. large enough. I guess I was simply mistaken about this one.
+
+## 3. Using Our Model for Predictions
+We will now test the predictive power of our model. We'll start by making a convenient "training copy" of our data, consisting of the 4 explanatory variables only. This way the real, observed outcomes are temporarily unknown and hidden, making the whole exercise more interesting!
+```{r}
+alcohol.practice <- alcohol[c("age","reason","studytime.factor","romantic")]
+```  
+  
+  Here's a how it looks:
+```{r}
+head(alcohol.practice)
+```  
+  
+The probability of the target outcome for a given data point is calculated from the coefficients that the model calculated for each explanatory variable, including the constant (aka Intercept) We'll illustrate this by arbitrarily selecting a student from our dataset. For example, let's pick Student #100 in the dataset for analysis:
+
+```{r}
+alcohol.practice[100,]
+```  
+  
+  In order to use our model to estimate the probability of this student being a heavy drinker, we must sum up all the logodds coefficients corresponding to his/her predictor variables (including Intercept), convert the sum into an odds ratio, and then convert that odds ratio into a probability. This is how: 
+  
+```{r}
+as.data.frame(coef(model))
+(log_of_odds <- -4.2949807 + 17*0.2321509 + 0 + -1.4077006 + 0) #Get the logarithm of odds
+(odds <- exp(log_of_odds)) #Get the odds
+(probability <- odds/(1+odds)) #Get the probability
+```  
+  
+  That's quite a bit of manual calculus to do, so fortunately there's a  __predict()__ function does all of it for us. We need only specify the model, the data, and the type of our outcome variable:
+  
+```{r}
+predict(model, alcohol.practice[100,], type = "response")
+```  
+  
+  The slight discrepancy between the output of __predict()__ and the manually calculated value is that the former uses exact values, while my manual computation uses the rounded values from the model printout.  
+  Let's now add a column to our practice data frame with the estimated probabilities of high alcohol use for every student, and look at a sample of the output:
+  
+```{r, echo=TRUE}
+alcohol.practice$probability <- predict(model, alcohol.practice, type="response")
+alcohol.practice[seq(1,nrow(alcohol.practice),25),]
+```
+
+  
+  And as you already guessed, the binary prediction on each student is that if the estimated probability of high alcohol use is greated than 50%, we predict that s/he is a heavy drinker; otherwise we predict the s/he isn't. We will now add a column with the final prediction for every student and look at the output:
+  
+```{r}
+alcohol.practice$prediction <- alcohol.practice$probability > 0.5
+alcohol.practice[seq(1,nrow(alcohol.practice),25),]
+```  
+  
+  There! Now we have an estimated probability of high alcohol use for each student, plus a binary prediction based on that probability. We can finally unveil the real, actual outcomes observed in the dataset, and juxtapose them with the predicted outcomes for comparison:
+  
+```{r}
+alcohol.practice$real_outcome <- alcohol$high_use
+alcohol.practice[seq(1,nrow(alcohol.practice),25),5:7]
+```  
+  
+  We can see that our model doesn't seem to be doing a great job predicting outcomes. But let's calculate the exact degree of its fallibility. We'll first create a column reporting whether the prediction failed:
+```{r}
+alcohol.practice$prediction.failed <- alcohol.practice$prediction!=alcohol.practice$real_outcome
+alcohol.practice[seq(1,nrow(alcohol.practice),25),5:8]
+```  
+  
+  
+Crucially, R is so clever that it treats the logical values TRUE and FALSE numerically as 1 and 0, respectively. Thus calculating the error rate is easy as pie -- it is simply the mean value of the column reporting TRUE for every student for whom the prediction failed.
+
+```{r}
+(ErrorRate <- mean(alcohol.practice$prediction.failed))
+```  
+  The model predicts correctly about 71% of the time.
+  
+## 4. Model Predictions vs. Educated Guessing
+
+Now we can compare the model's predictive performance to a strategy of simple but educated guessing. First we need to know the overall rate of high alcohol use in the entire dataset, i.e., its empirical probability.
+
+```{r}
+(EmpiricalProbability <- mean(alcohol$high_use))
+```
+
+So it's slightly below 30%. An educated guesser would take this empirical probability and toss a correspondingly biased coin for each student in the dataset, resulting in a sequence of predictions like this:
+
+```{r}
+(alcohol.practice$EducatedGuesses <- sample(c(TRUE, FALSE), size = nrow(alcohol), replace = TRUE, prob = c(EmpiricalProbability,1-EmpiricalProbability)))
+alcohol.practice$EducatedGuessFailed <- alcohol.practice$real_outcome!=alcohol.practice$EducatedGuesses
+```  
+  
+Now then, we will simply cross-tabulate the outcome distributions of these two prediction strategies.
+  
+```{r}
+ModelPredictionFail <- table(alcohol.practice$prediction.failed) 
+EducatedGuessFail<- table(alcohol.practice$EducatedGuessFailed)
+(CrossTab <- rbind(ModelPredictionFail, EducatedGuessFail))
+```  
+The chi-square test is perfect for these situations. It measures the total, aggregate difference between the frequency distributions of two (or more) samples, and reports the probability that an equal or greater difference would occur if both samples were from the same population. This probability is the p-value. In our case, the "populations" are the hypothetical populations of successful and failed predictions generated by the two guessing strategies. If the prediction strategies are equally good, then it is unlikely that their observed success rates in our dataset of 382 students would differ enough to result in a p-value below .05. Let's find out:
+
+```{r}
+chisq.test(CrossTab)
+```  
+  
+  My output reports a p-value far below the highest significance level of .001, so it seems safe to assume that the model soundly outperforms the educated guessing strategy. Bear in mind, however, that the educated guesses are re-generated from the empirical probabilities every time this page is loaded, so your results will not be identical to mine! Should you somehow get lucky and chance upon an instance of the educated guessing strategy outperforming the model (or even being competitive enough to result in a statistically non-significant p-value), feel free to take a screenshot and email it to me at juho decimalpoint ruohonen at helsinki decimalpoint eff eye.
+
+## 5. Cross-Validating the Model
+
+We'll now go back to the full dataset with all the predictors intact -- we will need them shortly. We'll add a new column containing the probabilities calculated by our model, and specify an error rate calculation function 'loss.func' which will be needed in cross-validation.
+```{r}
+alcohol$probability <- predict(model, alcohol, type="response")
+loss.func<-function(class,prob){n_wrong<-abs(class-prob)>0.5;mean(n_wrong)}
+loss.func(alcohol$high_use,alcohol$probability)
+```
+  Then we'll perform a 10-fold cross-validation of the model. This means that we divide the dataset into 10 random, complementary subsets of equal size, then perform 10 cycles of the following:
+  1. Recalculate the model coefficients based on sub-datasets 1 through 9, then test the predictive performance of the model on sub-dataset 10 and store the error rate in memory.
+  2. Re-calculate the model coefficients based on sub-datasets 2 through 10, then test the predictive performance of the model on sub-dataset 1 and store the error rate in memory.
+  3. Re-calculate the model coefficients based on sub-datasets 3 through 10 and 1, then test the predictive performance of the model on sub-dataset 2 and store the error rate in a vector, etc. until every sub-dataset has been used for both model creation and model testing at least once.
+  4. Calculate the mean error rate from the individual error rates of each cycle.
+  
+All this can be done with a single function call if we have the library _boot_.
+
+```{r}
+library(boot)
+CrossVal <- cv.glm(data = alcohol, glmfit=model, cost = loss.func, K = 10)
+CrossVal$delta[[1]]
+```
+  
+Now the error rate is of course higher than when we were simply testing the model's predictive power on the exact same dataset on which it was built.  
+  
+  This model performs worse than the one based on _failures_, _absences_ and _sex_ that we used in the Datacamp exercises. However, I chose these variables for autodidactic reasons (to teach myself to work with both continuous and categorical ones) rather than to maximize prediction performance. I predict, however, that it shall be easy to come up with a 4-variable model with an error rate below 25%. Actually, that goal is too modest. Let's shoot for a 3-variable model with an error rate lower than 25%.
+  
+To make the model-building and experimentation quicker and more convenient, we'll write a function to minimize the typing and manual calculus involved:
+
+```{r}
+logregr <- function(dataset = alcohol, model.formula){
+  tmp.df <- dataset; attach(tmp.df,warn.conflicts = FALSE)
+  logitmodel <- glm(data = tmp.df, formula = model.formula, family = "binomial")
+  print(summary(logitmodel))
+  cat("Logodds coefficients and their confidence intervals:\n"); print(cbind(data.frame(Estimate=coef(logitmodel)), confint(logitmodel)))
+  cat("\nError rate in 10-fold cross-validation:\n", cv.glm(data = tmp.df, glmfit = logitmodel, cost = loss.func, K = 10)[[3]][1])
+  detach(tmp.df)
+}
+```  
+  
+  Now we only need to specify the dataset and the formula stating the response variable and the predictors. The function will automatically print out the model summary, a table of logodds-coefficients with their confidence intervals (which I find more intuitive than the odds ratios), and finally the error rate obtained in a cycle of 10-fold cross-validation.  
+  So, let's try to find a model that uses only 3 predictors and achieves an error rate lower than 25%.
+  
+```{r}
+logregr(alcohol, high_use ~ sex+famrel+studytime.factor)
+logregr(alcohol, high_use ~ sex+famrel+Pstatus)
+```  
+  
+  Sigh. I wanted to find the better model without resorting too much to the silly variables used in the Datacamp example -- that model predicts high alcohol use from school absenteeism and failures. Common sense suggests that high use of alcohol is a cause, not a result, of these phenomena. But in order to be able to move on, I'll just use _sex_ and _absences_ as the first two variables, and try to find a third one that improves model performance relative to _failures_
+
+```{r}
+logregr(alcohol, high_use ~ sex+absences+goout)
+```  
+  
+  We have a a winner! Maleness, school absenteeism, and going out with friends are all significant correlates -- though not necessarily causes -- of high alcohol use in 15-to-22-year-old Portuguese students.
+  
+## 6. Manual Step-Down Regression
+Though computers perform immensely complex calculations for us, they cannot interpret the results or draw conclusions. Interpretation is always the task of the researcher, who must rely on his/her knowledge of the subject matter to "connect dots"" emerging from calculations. In a similar vein, even a high coefficient obtained by a model is in itself no evidence whatsoever of a causal link between variables x and y.   
+In all variants of regression analysis, the computer is instructed to "explain" the variance of the y-variable as a function of the x-variable(s) and a constant, and it will make its best effort to do just that -- regardless of how absurd that "explanation" may be. A prime example of this is the association between ice-cream consumption and drownings.  Correlation is not causality. Therefore, we need to really know what we're doing if we're going to dump truckloads of predictors into the model -- the more we dump in, the better the computer will be able to "explain" the variation. But unless we can plausibly explicate HOW a given x-variable with a significant p-value causes the change in the y-variable, we cannot claim a causal link.  
+  
+Therefore, aside from prediction power, model economy is another key goal of regression analysis. We aim to explain as much of the variation of Y as possible with as few X-variables as possible, because every new X-variable we add to the model increases the amount of explaining we have to do -- we want our explanation of a given phenomenon to be as succinct as possible.  
+  
+  The AIC score provides a measure of this. It is a function of residual deviance and model complexity, i.e., inversely correlated with prediction power and model simplicity. The lower the AIC score, the better the model.
+
+With these guiding principles in mind, we will now practise manual step-down regression (also known as backwards elimination). We start with a bloated model featuring 10 predictors, and we will try to iteratively trim it down to just the most essential ones.
+
+In order to make the printouts more succinct and less cluttered, I'll use the original (numeric) version of _studytime_ despite the questionability of its continuous nature. I will also leave _absences_ out of the equation despite its strong correlation with the response variable: I remain unconvinced that it causes high alcohol use rather than __being caused__ by high alcohol use. The following, then, are the 10 predictors that we begin with:
+
+1. Sex (binary)
+2. Frequency of going out (continuous)
+3. Number of past class failures (continuous)
+4. Internet access at home (binary)
+5. Parents' cohabitation status (together or separated)
+6. Studytime per week -- now treated as continuous
+7. Address (urban or rural, binary)
+8. Average grade in Math and Portuguese (continuous)
+9. Reason for selecting the current school (categorical, 4 levels)
+10. Having extra-curricular activities (binary)
+
+Before beginning, we will finetune our __logregr()__ function suit the task better. Rather than 10-fold cross-validation, we'll tell it to use the more exhaustive and reliable "leave-one-out" technique, which divides the data into as many partitions as there are observations. This means that the R will rebuild the model on 381 of the total 382 observations and then try to predict the outcome of the one that was left out -- 382 times -- and calculate the mean error rate. The process is cpu-intensive -- don't try it on a 8086! The leave-one-out method is specified simply by omitting the K argument of the __cv.glm__ call. Secondly, we'll tell __logregr()__ it to skip the printing of confidence intervals -- showing us the model summary should suffice (note how easy it is to "deactivate" lines of code while still keeping them available for later use simply by prepending # to them). Lastly, let's have the function output both the training error and the testing error in tabular format, so that we can easily document our model-trimming process.  
+
+```{r}
+logregr <- function(dataset = alcohol, model.formula){
+  tmp.df <- dataset; attach(tmp.df,warn.conflicts = FALSE)
+  logitmodel <- glm(data = tmp.df, formula = model.formula, family = "binomial")
+  print(summary(logitmodel))
+  #cat("Logodds coefficients and their confidence intervals:\n"); print(cbind(data.frame(Estimate=coef(logitmodel)), confint(logitmodel)))
+  tmp.df$probability <- predict(logitmodel, tmp.df, type = "response")
+  ErrorRates <- data.frame(TrainingError = loss.func(tmp.df$high_use, tmp.df$probability), TestingError = cv.glm(data = tmp.df, glmfit = logitmodel, cost = loss.func)[[3]][1])
+  detach(tmp.df); cat("\nError rates:\n"); print.data.frame(ErrorRates); return(ErrorRates)
+}
+```  
+
+Alright, let's start culling our oversized flock of variables.  
+  
+```{r}
+Round1 <- logregr(alcohol, high_use ~ sex+goout+failures+internet+Pstatus+studytime+address+G3+reason+activities)
+```  
+
+Grades in Math and Portuguese are clearly irrelevant. Out they go.  
+  
+```{r}
+Round2 <- logregr(alcohol, high_use ~ sex+goout+failures+internet+Pstatus+studytime+address+reason+activities)
+```  
+  
+  AIC score went down a bit. Good.
+  I find myself eyeballing the z-values column the most. Its absolute value is often a direct measure of the significance of the variable, and unlike the p-value, significance grows as distance from zero grows. One important thing to note, however, is the different treatment of continuous and categorical variables. With multi-class categorical variables, every level except the first one (the reference level) is listed as a "variable" of its own, with its own coefficients and other statistics. This means that we cannot extract the significance value of _reason_ directly from this printout. Instead, we must calculate the __range__ of z-value variation exhibited by all levels as a whole. In this example, _reasonreputation_ has a z-value of -0.140 while _reasonother_ has a 2.158. The total z-value of this variable, then, is about 2.3, indicating that this is quite significant a variable indeed.  
+  The continuous variables are easier to interpret: the coefficient represents the effect of a one-unit change in the variable's value, and the z-value represents the overall significance of the variable when all of its variation taken into account  
+  The next variable to go is _PstatusT_. I'm a little surprised that the cohabitation status of the parents is showing so little of an effect. I assumed that  children of intact nuclear families would drink considerably less than those of single parents. Guess not! Next round:
+  
+```{r}
+Round3 <- logregr(alcohol, high_use ~ sex+goout+failures+internet+studytime+address+reason+activities)
+```  
+
+AIC improved again.  
+I suppose _internet_ is the next one to go. Its effect is totally contrary to my presumption. I assumed that people with no internet would drink more because they have fewer other entertainment options available. Not so. Live and learn...
+
+```{r}
+Round4 <- logregr(alcohol, high_use ~ sex+goout+failures+studytime+address+reason+activities)
+```
+AIC keeps modestly improving.  
+I think _failures_ goes next. Not gonna miss it. It was another of those whose very inclusion as a predictor seemed slightly dubious due to uncertainty about the directionality of the link, i.e., which really causes which. Begone, foul variable!
+  
+```{r}
+Round5 <- logregr(alcohol, high_use ~ sex+goout+studytime+address+reason+activities)
+```
+Now things are getting harder. The p-value is just a rough guideline that one scientist made up in the 1930s when it was hard work to perform all these calculations manually over and over again. It is not an infallible litmus test of significance. All of the remaining variables seem at least somewhat relevant to me. It is therefore with a heavy heart that I remove _activities_ from the list of predictors -- I only do so to comply with the exercise instructions. 
+```{r}
+Round6 <- logregr(alcohol, high_use ~ sex+goout+studytime+address+reason)
+```  
+  
+  We are essentially finished now. At this stage, it is no longer clear whether the current model is better than the previous one that included _activities_. The AIC score actually got worse after removing it, supporting my impression that it was no longer wise to keep eliminating predictors. On the other hand, Testing Error improved slightly. Frankly, I'm having a hard time wrapping my head around these numbers: both AIC and Residual Deviance increased, and both those statistics are supposedly derived (at least in part) from how well the model fits the data. Then how can prediction accuracy improve at the same time as those two measures become worse?  
+  In any case, all the remaining predictors are significant from this point on -- according to both statistical math and plain common sense. If we remove more, we are bound to witness an upswing in both error rate and AIC score:
+  
+```{r}
+Round7 <- logregr(alcohol, high_use ~ sex+goout+studytime+address)
+```  
+
+Say what? AIC and Residual Deviance deteriorated further. Even Training Error went up, all of which was to be expected from removing a clearly significant predictor. Yet Testing Error improved again???? I am stumped, I can't even. Basic common sense would suggest, however, that the better a model predicts outcomes, the better it is, no matter what any other fancy mathematical calculations might say. Therefore, we will keep playing this game for as long as Testing Error keeps improving. The next variable to go is _address_.
+```{r}
+Round8 <- logregr(alcohol, high_use ~ sex+goout+studytime)
+```
+WHOA stop right there! Enough! Now EVERYTHING got worse. That was clearly one step too far. We are finished. Let's draw a chart of how Testing Error and Training Error progressed throughout our elimination process:
+```{r}
+Errors<-cbind(PredictorsLeft=10:3,rbind(Round1,Round2,Round3,Round4,Round5,Round6,Round7,Round8))
+ggplot(data=Errors, aes(x=PredictorsLeft)) + geom_line(aes(y=TrainingError, color="TrainingError")) + geom_line(aes(y=TestingError, color="TestingError")) + scale_x_reverse(breaks=10:3) + theme(panel.grid.minor=element_blank()) + scale_y_continuous(limits = c(.20,.26), breaks = c(.20,.21,.22,.23,.24,.25,.26)) + geom_point(aes(y=TestingError)) + geom_point(aes(y=TrainingError)) + ylab("Error Rate") + xlab("Number of Predictors in Model")
+```  
+
+Going by the simple and intuitive criteria of model economy and prediction power, there is no question about the winner. The model in Round 7, containing the predictors _goout_, _sex_, _address_ and _studytime_ achieves by far the best combination of simplicity and accuracy. This partly contradicts the AIC and Residual Deviance test statistics, both of which indicated the superiority of Model 5, which included _reason_ and _activities_ in addition to those just mentioned. But I will go with common sense here, awarding the win to Model 7. Here's the winning function call:
+
+> logregr(alcohol, high_use ~ sex+goout+studytime+address)
+
+This relatively laborious backwards-elimination process that we've just completed can be done automatically by many software tools. One of them is _Rbrul()_, a  popular R program with an interactive interface that supports complex methods such as generalized mixed modeling. However, it is risky to rely too much on computers. Computers can calculate correlations, but they can't detect causal relationships. They can't choose which variables are meaningful to study in the first place. A computer couldn't have made my choice -- based on real-world knowledge -- to leave _absences_ out of the initial set of variables due to its dubious causal status. At the time of this writing in the mid-2010s, computers are still _idiots-savants_ -- great at calculus, but ultimately dumb.

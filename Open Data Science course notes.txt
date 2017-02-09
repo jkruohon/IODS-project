@@ -48,7 +48,7 @@ par(mfrow = c(2,2));
 
 LEVERAGE OF OBSERVATIONS viittaa siihen, kuinka paljon/pahasti yksi havainto(yksikkö) vaikuttaa koko korrelaatiokertoimeen eli koko regressiosuoran kulmakertoimeen. jos esim yksi poikkeava havainto x-muuttujan jommassa kummassa ääripäässä antaa tosikorkean/tosimatalan y:n arvon, vaikuttaa se poikkeava havainto perkeleesti x:n regressiokertoimeen. sen sijaan jos tuo poikkeava äärimmäinen y:n arvo sijaitsee x:n keskivaiheilla, ei vaikutus ole näin selkeä. koska se, että se sijaitsee keskikohdassa, ei ainakaan tarkoita että x:n suuret tai pienet arvot olisivat ennustusvoimaisia. (se voi tosin jossain tapauksessa tarkoittaa, että keskimääriset x:n arvot olisivat ennustusvoimaisia, mutta tällöin x:n ja y:n suhde ei olisi enää lineaarinen, eiks ni?
 
-In R, predicting can be done using the predict() function. (see ?predict). The first argument of predict is a model object and the argument newdata (a data.frame) can be used to make predictions based on new observations. One or more columns of newdata should have the same name as the explanatory variables in the model object.  Sain. if the oucome variable is binary, one must use the type="response" argument. this gives the predictions as probabilities of the response variable being 1 for each unit of observation.
+In R, predicting can be done using the predict() function. (see ?predict). The first argument of predict is a model object and the argument newdata (a data.frame) can be used to make predictions based on new observations. One or more columns of newdata should have the same name as the explanatory variables in the model object.  Sain. if the outcome variable is binary, one must use the type="response" argument. this gives the predictions as probabilities of the response variable being 1 for each unit of observation.
 
 GitHubin verkkoversiossa luodaan uusi hakemisto tekemällä uusi file ja antamalla sille nimeksi uusihakemisto/symbolinenuusitiedostojokatehtiinvainjottauusihakemistosaataisiinluoduksi.txt
 
@@ -83,7 +83,7 @@ confint(malli) laskee kertoimille luottamusvälit.
 
 probability = todennäköisyys. vaihteluväli 0-1
 odds = "onnistumisen" todennäköisyyden ja "epäonnistumisen" todennäköisyyden välinen suhde. esim 0.6/0.4 = 1.5. vaihteluväli 0-ääretön
-odds ratio = kahden selittävän muuttujan eri arvon oddsien suhde toisiinsa. tämä saadaan logistisen regression "kertoimesta" korottamalla 2.718 "kertoimen" näyttämään potenssiin.
+odds ratio = kahden selittävän muuttujan eri arvon onnistumisoddsien suhde toisiinsa. tämä saadaan logistisen regression "kertoimesta" korottamalla 2.718 "kertoimen" näyttämään potenssiin.
 
 odds (en tiedä onko suomennosta) lasketaan näin:  jos 75 miestä 100sta on juoppoja ja 25raittiita, niin lasketaan 75/25 ja saadaan miesten juoppous-oddsiksi 3/1.
 naisten odds olisi vastaavasti... jaa-a. mutta jos otetaan miesten komplementiksi naiset. ja heistä sadasta juoppoja on 40 ja raittiita 60. niin odds on 2/3.
@@ -97,3 +97,5 @@ confint(malli) laskee logistisen mallin mutta veikkaisin että miksei myös line
 
 jos on joku numerovektori numerot niin voimme muodostaa toisen SAMANPITUISEN loogisen (ehkä muunkinlaisen) vektorin sen arvoista esim näin:
 kannanottovektori = numerovektori>=0.6    tällöin kannanottovektori saa arvon TRUE jos numerovektorin vastaava elementti on kuusi tai isompi, muutoin taas se saa arvokseen FALSE.
+
+muista, että AIC-luku ilmeisesti TOIMII VERTAILULUKUNA VAIN SILLOIN, KUN RASKAAMPI VERROKKIMALLI SISÄLTÄÄ KAIKKI SAMAT MUUTTUJAT KUIN YKSIKERTAISEMPI MALLI + MUITA. JOS YKSINKERTAISEMMASSA MALLISSA ON MUUTTUJIA, JOITA RASKAAMMASSA EI OLE, NIIN ????

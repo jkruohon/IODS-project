@@ -27,7 +27,8 @@ AlcoholConsumption <- mat_por[StudentIdentificationColumns]
 for (variable in non.id.columns){
   two.columns <- mat_por[which(startsWith(colnames(mat_por), variable))]
   
-#if the data is numeric, take the means of each pair of .mat and .por values and assign them to the corresponding new column in AlcoholConsumption:
+  if(startsWith(colnames(two.columns)[1],"studytime")){AlcoholConsumption[variable]<-two.columns[,1]}else{
+  #if the data is numeric, take the means of each pair of .mat and .por values and assign them to the corresponding new column in AlcoholConsumption:
   
   if(is.numeric(two.columns[[1]])){
     AlcoholConsumption[variable] <- rowMeans(two.columns)}
@@ -36,7 +37,7 @@ for (variable in non.id.columns){
   
   else{
     AlcoholConsumption[variable] <- two.columns[,1]}
-}
+}}
 
 #Create a new column reporting each student's overall level of alcohol use:
 
