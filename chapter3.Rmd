@@ -111,7 +111,7 @@ Let's take a look at the contents of our new column:
 table(alcohol$studytime.adjusted)
 ```  
   
-Much better. Now there are no ridiculously underrepresented groups. Having gotten started mutating variables, however, we should now make another little adjustment in order to render this data more informative -- this time without changing any of the actual values. Since _studytime_ and _studytime.adjusted_ are ordinal non-interval variables, it is not intuitively clear what their levels represent. In fact, the 1-4 scale is a bit misleading as it might lead us to assume that the levels are evenly spaced. This is easily fixed by converting our new _studytime.adjusted_ variable into a factor. A factor is a vector whose values are treated as categorical and can be named and ordered however we choose. In our case, we want to preserve the original ordering and simply name the levels informatively. This is easy in R:  
+Much better. Now there are no ridiculously underrepresented groups. However, we should make another little adjustment in order to prevent R from treating this variable as continuous. This is easily accomplished by converting our new _studytime.adjusted_ variable into a factor. A factor is a vector whose values are treated as categorical and can be named and ordered however we choose. In our case, we want to preserve the original ordering. However, we do want to change the names of the levels -- the labels 1, 2, 3 and 4 are a bit misleading as they might lead us to assume that the levels are evenly spaced. We will replace these numeric labels with new ones that accurately reflect what the levels represent. These adjustments are easy to do in R:  
   
 ```{r, echo=TRUE}
 alcohol$studytime.factor <- as.factor(alcohol$studytime.adjusted) #Create a version of studytime.adjusted that is categorical
@@ -138,11 +138,11 @@ With these conversions made, let's take a look at how the data compares to our h
 ggplot(data=alcohol, aes(alcohol$studytime.factor, fill=alcohol$high_use)) + geom_bar(position = "fill") + ylab("relative frequency") + ggtitle("High alcohol consumption as a function of weekly study time", "N = 382") + scale_x_discrete(labels=levels(alcohol$studytime.factor)) + xlab("weekly study time")
 ```  
   
-This data supports my fairly self-evident hypothesis that diligent students booze less than lazy ones.
+This data supports my fairly self-evident hypothesis that diligent students are less often heavy drinkers than lazy ones.
 
 ###Predictor: romantic 
   
-Alcohol lowers inhibitions and boosts libido. This is why it has been a powerful aid in human pair-bonding for aeons. In fact, this might just be the most important reason it is used in the first place, whether people admit it or not. Therefore, the prediction that people who are in a relationship, i.e. have already pair-bonded, have less reason to use alcohol was a fairly obvious one to make. As a binary variable, this one should be the easiest of the four to analyze.  
+Alcohol lowers inhibitions and boosts libido. This is why it has been a powerful aid in human pair-bonding for aeons. In fact, this might just be the most important reason it is used in the first place, whether people admit it or not. Therefore, the assumption that people who are in a relationship, i.e. have already pair-bonded, have less reason to use alcohol was a fairly obvious one. As a binary variable, this one should be the easiest of the four to analyze.  
   
   Contingency tables (aka cross-tabulations) are a handy way of assessing correlations between variables that can be represented in 3x3 or smaller tables. We use them a lot in linguistics, e.g. when assessing whether the frequency distribution of a categorical variable such as _that_-omission vs. _that_-retention has remained constant or changed between two time periods. High alcohol consumption as a function of relationship status is a virtually identical phenomenon from a methodological standpoint. We'll start by printing a contingency table of raw frequencies:
 
