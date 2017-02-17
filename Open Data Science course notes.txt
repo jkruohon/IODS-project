@@ -1,4 +1,4 @@
-﻿"transcode it into utf-8" !!!
+"transcode it into utf-8" !!!
 joku slack-ryhmä jossa tapahtuisi huomattava osa kurssin kommunikaatiosta. sinne on ensin saatava kutsu jossa voi liittyä.
 
 github tunnus jkruohon yliopistosähköpostisalasana sama kuin yliopistosähköpostissa 16-17 lukuvuonna.
@@ -100,7 +100,7 @@ LDA:n tulosteen Coefficients of Linear Discriminants -taulu puolestaan kertoo, m
 proportion of trace kertoo, kuinka paljon luokkien välisestä vaihtelusta luokat selittävät. näin video sanoo.
 Näin luodun mallin avulla voidaan sitten, kuten lineaarisessa ja logistisessakin regressiossa, tehdä ennustuksia uudelle datalle.  eli ennustus siitä, mihinkä näistä mallin määrittämistä luokista uusi havainto todennäköisimmin qluu.
 
-tämä LDAhan on tavallaan käänteistä multinomiaalista logistista regressiota. se etsii siis oletetuille tai olemassaoleville luokille jos nyt ei selittäjiä, niin selittävää selittäjien käytöstä. X:n arvo pruukaa olla keskiarvo -2,5 Y:n luokan 1 kohdalla. X2:n arvo pruukaa olla keskiarvo +15 keskihajonnalla 3 Y:n luokan 2 kohdalla. jne. kuitenkin vissiin kai tässä on pakollista että selittäjät ovat numeerisia.
+tämä LDAhan on tavallaan käänteistä multinomiaalista logistista regressiota. se etsii siis oletetuille tai olemassaoleville luokille jos nyt ei selittäjiä, niin selittävää selittäjien käytöstä. X:n arvo pruukaa olla keskiarvo -2,5 Y:n luokan 1 kohdalla. X2:n arvo pruukaa olla keskiarvo +15 keskihajonnalla 3 Y:n luokan 2 kohdalla. jne. 
 lda(selitettävä ~ selittäjä1 + selittäjä2 + selittäjä3, data=datasetti)  ja outputti on suoraan tuloste. ei tarvita summarya.
 
 # MASS and train are available
@@ -133,8 +133,8 @@ no johan. tuo funktio joka tuossa tehdään, plottiin yhdistettynä siten, että
 predict() toimii LDA:n kanssa sillei että ykkösargumentti on edelleen malliobjekti, sitten on syötettävä uusi data. oletettavasti öö predict sitten etsii sieltä noita LDA-mallin variaabeleita ja niiden avulla tekee ennusteet. joo malliobjektin eka itemi sisältää ne ennustetut luokat.
 
 kmeans etsii niin monta sentroidia eli klusterinkeskipistettä kuin centers= -argumentti täsmentää. tietysti datasetin on koostuttava jatkuvoista muuttujoista. tämän funktion outputtina on lista, jonka $cluster elementti sisältää klusterien numerot ja vissiinkin vektorina sen tiedon, mihinkä klusteriin kukin havaintoyksikkö (eli syötedataframen rivi) analysoitiin kuuluvaksi.
-
-
+LDA alkaa näyttää suorastaan parhaalta vaihtoehdolta omaan tukimusonkelmaani. Nojoo. Mutta vaaditaan samavarianssisuutta ja normaalisuutta eli Gaussilaisuutta selittäjiltä. Muuttujamuunnoksilla tämä kuitenkin saadaan aikaiseksi. Log and Root korjaa eksponentiaalisia jakaumia? Box-Cox korjaa vinoutuneita jakaumia?
+
 logistisregressiokama:
 perus binäärilogistinen malli: glm(selitettävä + selittävä1 + selittävä2 + selittävä3, data = dataframejostatiedotsaadaan, family = "binomial") 
 tietenkään tämä ei vielä mitään piirrä vaan rakentaa vain datan. summary(malli) piirtää tutunnäköisen kuvan. coef(malli) raportoi pelkät kertoimet. eli tässähän 0 ei suosi eikä hylji, positiiviset arvot suosivat ja negatiiviset hylkivät.

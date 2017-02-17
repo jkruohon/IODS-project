@@ -41,8 +41,9 @@ Not even the host page tells us much about the purpose of this dataset. If I had
 ```{r}
 summary(Boston)
 ```
-Because Linear Discriminant Analysis is linear, it requires the explanatory variables to be continuous. That is doubtless why this dataset was chosen for this chapter -- there are only numeric variables.   
-Alright, let's draw a plot of the correlations of each pair of variables:
+~~Because Linear Discriminant Analysis is linear, it requires the explanatory variables to be continuous. That is doubtless why this dataset was chosen for this chapter -- there are only numeric variables.~~ Despite the use of the word _linear_, LDA does NOT require the predictor variables to be linear. It only requires that they can be represented numerically. Even our Boston dataset contains one binary variable, namely _chas_. Since LDA apparently places no requirements on the nature of the predictor variables, it is quite a versatile statistical tool indeed. What it does require is that the predictors be normally distributed and have the same variance. However, according to [this page](http://machinelearningmastery.com/linear-discriminant-analysis-for-machine-learning/), there are valid work-arounds even when these requirements are not met.
+  
+  We will now proceed to draw a plot of the correlations of each pair of variables:
 ```{r}
 library("corrplot");library("tidyverse")
 (matriisi<-cor(Boston)) %>% corrplot(method="circle")
@@ -135,7 +136,7 @@ This shows us that the model does well at predicting low and high crime rates --
 
 Cluster analysis is used to identify meaningful categories within a population. A meaningful category is a subgroup of the population whose members, in one way or another, behave similarly to other members of that same group, and dissimilarly from the members of the other subgroups.  
   
-  As humans, we have a built-in pattern recognition firmware that helps us place the real-world phenomena that we encounter into pre-determined categories and respond to them accordingly. Therefore, the utility of cluster analysis might not be quite as intuitively obvious as that of a technique such as regression analysis or LDA. An example of a situation where cluster analysis may be useful is if, say, we discover a new species of deep-ocean fish. At the beginning, we will have very little knowledge of the scale of variation -- morphological or otherwise -- present in the species. We might even have stumbled upon an entire new taxon of fish comprising more than one separate species! In cluster analysis, we would gather measurements on a set of characteristics from as large a sample of the population as possible -- say, weight, length, number of scales, tooth length, etc. -- and then use cluster analysis to see how many meaningful subgroups the population seems to divide into. After doing so, we might summon a board of biologists to decide whether these subgroups represent a set of sub-species of a single new species, or a set of more than one new species. Then we would proceed to give them names, descriptions, and so on.  
+  As humans, we have a built-in pattern recognition firmware that helps us place the real-world phenomena that we encounter into pre-determined categories and respond to them accordingly. Therefore, the utility of cluster analysis might not be quite as intuitively obvious as that of a technique such as regression analysis or LDA. An example of a situation where cluster analysis may be useful is if, say, we discover a new species of deep-sea fish. At the beginning, we will have very little knowledge of the scale of variation -- morphological or otherwise -- present in the species. We might even have stumbled upon an entire new taxon of fish comprising more than one separate species! In cluster analysis, we would gather measurements on a set of characteristics from as large a sample of the population as possible -- say, weight, length, number of scales, tooth length, etc. -- and then use cluster analysis to see how many meaningful subgroups the population seems to divide into. After doing so, we might summon a board of biologists to decide whether these subgroups represent a set of sub-species of a single new species, or a set of more than one new species. Then we would proceed to give them names, descriptions, and so on.  
   
   In the present exercise, we will use cluster analysis to see how many meaningful group distinctions emerge among the different Massachusetts townships represented in our dataset. To do this, we need a version of the Boston dataset where _crim_ is back in numeric format, and everything has been scaled:  
 ```{r}
@@ -163,4 +164,11 @@ pairs(Boston, col = km$cluster)
 ```
   
   I don't get much out of this plot, either. There's too much stuff jammed into a tight space.
-
+##Bonus
+We'll now perform this analysis in reverse. We'll take 4 clusters -- this seems a relatively good number of clusters, judging from the second-to-last-plot -- and perform LDA on _Boston_ with the 4 clusters as target classes, in order to try and identify their common characteristics.  
+  
+```{r}
+km4<-kmeans(dist_eu, centers = 4)
+Boston$cluster<-km4$cluster
+(ld4.4c<-lda(cluster ~ ., data=Boston))
+```
