@@ -1,0 +1,166 @@
+#Clusters and Classification
+This is the Clustering and Classification homework. We'll start by taking a gander at the data.
+```{r}
+library(MASS)
+data("Boston")
+str(Boston);View(Boston)
+```
+  
+  These variable names tell us little about what they represent. I'll just copypaste the descriptions from the original [website](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html):
+
+crim  
+  per capita crime rate by town.  
+zn  
+  proportion of residential land zoned for lots over 25,000 sq.ft.  
+indus  
+  proportion of non-retail business acres per town.  
+chas  
+  Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).  
+nox  
+  nitrogen oxides concentration (parts per 10 million).  
+rm  
+  average number of rooms per dwelling.  
+age  
+  proportion of owner-occupied units built prior to 1940.  
+dis  
+  weighted mean of distances to five Boston employment centres.  
+rad  
+  index of accessibility to radial highways.  
+tax  
+  full-value property-tax rate per \$10,000.  
+ptratio  
+  pupil-teacher ratio by town.  
+black  
+  1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town.  
+lstat  
+  lower status of the population (percent).  
+medv  
+  median value of owner-occupied homes in \$1000s.  
+    
+Not even the host page tells us much about the purpose of this dataset. If I had to guess, I'd guess it was collected to analyze correlates and predictors of house prices. Here are the summaries:
+```{r}
+summary(Boston)
+```
+Because Linear Discriminant Analysis is linear, it requires the explanatory variables to be continuous. That is doubtless why this dataset was chosen for this chapter -- there are only numeric variables.   
+Alright, let's draw a plot of the correlations of each pair of variables:
+```{r}
+library("corrplot");library("tidyverse")
+(matriisi<-cor(Boston)) %>% corrplot(method="circle")
+```
+  
+  Circle diameter and darkness illustrate the strength of the variable's correlation with the variable that intersects with it in the matrix. Blue color means a positive correlation, red is negative. The strongest correlations that catch my eye in this plot are:
+  
+  * Air pollution levels and distance from large employment centers (negative). This is a 'well, duh' observation -- of course pollution is lower the farther you get from the chimneys and smokestacks.
+  * Property tax and the amount of industry in town -- this correlation is not at all self-evident to me. I would have assumed that taxes would be lower in industrial centers because industrious people create wealth and don't need income redistribution in the form of high taxes. But I seem to be missing something critical.
+  * Distance from emplyoment centers is also strongly negatively correlated with the amount of industry in town. I guess this means people don't want to run their factories in remote locations where the long commute would turn off potential employees.
+  
+Now it's time to scale the data.
+
+```{r}
+Boston.unscaled<-Boston #Backing up the unscaled version
+Boston<-scale(Boston)
+summary(Boston)
+```
+
+Now every variable has been standardized and centered by subtracting the mean from the value and dividing the remainder by the standard deviation of that variable. It makes comparisons of variance much easier and more intuitive. Next we convert _crim_(e rate) into a categorical variable AKA factor. This time we also do what is seldom advisable, i.e., delete the old, numeric variable afterwards:
+
+```{r}
+Boston<-as.data.frame(Boston)
+(kvantiilit<-quantile(Boston$crim))
+Boston$crime.factor<-cut(Boston$crim, kvantiilit, include.lowest = TRUE, labels=c("low","low-ish","high-ish","high"))
+Boston<-Boston[,-1]
+```
+The __scale()__ function turned _Boston_ into a matrix object, which doesn't behave quite the way we want here, so I had to convert it back into a data frame before being able to proceed. Don't ask why __scale()__ does that.
+
+Now we must randomly split the data into a training set consisting of 80% of the observations and a testing set comprising the remaining 20%:
+
+```{r}
+set.seed(10)
+TrainingRows<-sample(nrow(Boston),size=nrow(Boston)*.8) #Randomly select 80% of all rows
+TrainingSet<-Boston[TrainingRows,] #Create training set
+TestingSet<-Boston[-TrainingRows,] #Create testing set
+head(TrainingSet)
+head(TestingSet)
+```
+##Linear Discriminant Analysis  
+So now we will follow a procedure very similar to the _Cross-Validation_ seen in the previous chapter. We will first build a model on the training dataset, then we will test its predictive power on the testing dataset. A new, useful detail is that if you want to use all the variables found in the data frame as predictors, you can use a single dot as a wildcard for that:
+  
+```{r}
+(lda.fit<-lda(crime.factor ~ ., data = TrainingSet))
+```
+  
+  Linear Discriminant Analysis is a pattern-recognition and dimensionality-reduction technique. It is used to to identify patterns in the behavior of a set of continuous explanatory variables in 2 or more known categories/groups (the dependent variable), and distill these different behaviors into a set of "discriminants" that are specific combinations of values that the explanatory variables tend to take in each category/group.   
+    
+  For instance, imagine you're an entrepreneur selling a single product that you've worked years on. To improve the success rate of your marketing efforts, you might gather all the available information on the people you've ever solicited in your career, and conduct a LDA to identify what the people who actually buy from you have in common. Say you're able to access the information on the following set of explanatory variables: age, income level, BMI, number of children, hair length, size of current home town -- that's 7 explanatory variables. Conducting an LDA might reveal that the people who buy from you tend to be over the age of 30, have more than 3 kids, live in very small towns, and have medium-to-low income. That is their "discriminant", and you can multiply your sales by focusing your marketing on people who match that profile.  
+  
+  In the exercise at hand, we're trying to identify the discriminants of the 4 different levels of crime rate. I'm not particularly enamored with this categorization: I view this dependent variable as essentially continuous, and its conversion into a factor seems somewhat artificial to me. But the instructions are what they are, and obey we must. Here's an arrow bi-plot of the LDA:
+  
+```{r}
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+classes <- as.numeric(TrainingSet$crime.factor)
+plot(lda.fit, dimen = 2, col=classes, pch=classes);lda.arrows(lda.fit, myscale = 1.5)
+```
+  
+  Frankly, I don't get much out of this plot. It's too messy and cluttered for me to fully wrap my head around.  
+    
+  Our next step is using the model for predictions. We'll start by storing the actual crime categories of the testing set in a separate vector and then removing that column from the dataset, in order to make the prediction game more interesting:
+    
+```{r}
+correct.classes<-TestingSet$crime.factor
+TestingSet<-TestingSet[,which(colnames(TestingSet)!="crime.factor")]
+```  
+  
+  Then we make predictions in a familiar way...
+  
+```{r}
+lda.pred <- predict(lda.fit, newdata = TestingSet)
+```  
+  
+  ...followed by a cross-tabulation of the predicted and observed outcomes:
+
+```{r}
+table(real = correct.classes, predicted = lda.pred$class)
+```
+
+This shows us that the model does well at predicting low and high crime rates -- a useful model, in other words. The intermediate categories cause much more difficulty though.
+
+##K-Means Cluster Analysis
+
+Cluster analysis is used to identify meaningful categories within a population. A meaningful category is a subgroup of the population whose members, in one way or another, behave similarly to other members of that same group, and dissimilarly from the members of the other subgroups.  
+  
+  As humans, we have a built-in pattern recognition firmware that helps us place the real-world phenomena that we encounter into pre-determined categories and respond to them accordingly. Therefore, the utility of cluster analysis might not be quite as intuitively obvious as that of a technique such as regression analysis or LDA. An example of a situation where cluster analysis may be useful is if, say, we discover a new species of deep-ocean fish. At the beginning, we will have very little knowledge of the scale of variation -- morphological or otherwise -- present in the species. We might even have stumbled upon an entire new taxon of fish comprising more than one separate species! In cluster analysis, we would gather measurements on a set of characteristics from as large a sample of the population as possible -- say, weight, length, number of scales, tooth length, etc. -- and then use cluster analysis to see how many meaningful subgroups the population seems to divide into. After doing so, we might summon a board of biologists to decide whether these subgroups represent a set of sub-species of a single new species, or a set of more than one new species. Then we would proceed to give them names, descriptions, and so on.  
+  
+  In the present exercise, we will use cluster analysis to see how many meaningful group distinctions emerge among the different Massachusetts townships represented in our dataset. To do this, we need a version of the Boston dataset where _crim_ is back in numeric format, and everything has been scaled:  
+```{r}
+Boston.adulterated<-Boston #Back up the version in which crime is a factor.
+Boston<-as.data.frame(scale(Boston.unscaled)) #Scale the original version of Boston and make sure the result is a data frame:
+head(Boston)
+```
+Then we calculate the Euclidean distance between each town: 
+
+```{r}
+dist_eu<-dist(Boston)
+```
+
+Finally, we apply the clever algorithm shown in the Datacamp exercise in order to visually identify the optimal (most succinct and informative) number of of clusters (groups) into which the dataset divides:
+
+```{r}
+k_max <- 10;twcss <- sapply(1:k_max, function(k){kmeans(dist_eu, k)$tot.withinss});plot(1:k_max, twcss, type='b')
+```
+  
+  Here we face the same dilemma as in step-wise regression: we can see that increasing the number of clusters decreases the number of residual variance, which is the goal. But more clusters means more categorizations, i.e., more complexity, more explaining to do, and more cognitive load. Therefore, we will abide by the rule of thumb in cluster analysis -- the optimal number of clusters is the one that brings about the most radical change in residual variance -- and declare that 2 is the winning number. If we were seriously pursuing this line of investigation, we would now examine the clusters, identify their shared characteristics, and perhaps give them informative names or labels. But that's not the instruction. The instruction is to visualize the clusters. Hence now we visualize the clusters:
+
+```{r}
+km <-kmeans(dist_eu, centers = 2)
+pairs(Boston, col = km$cluster)
+```
+  
+  I don't get much out of this plot, either. There's too much stuff jammed into a tight space.
+
