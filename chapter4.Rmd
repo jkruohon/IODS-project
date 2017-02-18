@@ -181,7 +181,7 @@ pairs(Boston, col = km$cluster)
   
   I don't get much out of this plot, either. There's too much stuff jammed into a tight space.
 ##Bonus
-We'll now perform this analysis in reverse. We'll take 4 clusters -- this seems a relatively good number of clusters, judging from the second-to-last-plot -- and perform LDA on _Boston_ with the 4 clusters as target classes, in order to try and identify their common characteristics.  
+We'll now perform this analysis in reverse. We'll take 4 clusters -- this seems a relatively good number, judging from the second-to-last-plot -- and perform LDA on _Boston_ with the 4 clusters as target classes, in order to try and identify their common characteristics.  
   
 ```{r}
 km4<-kmeans(dist_eu, centers = 4)
