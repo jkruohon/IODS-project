@@ -8,34 +8,50 @@ str(Boston);View(Boston)
   
   These variable names tell us little about what they represent. I'll just copypaste the descriptions from the original [website](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html):
 
-crim  
-  per capita crime rate by town.  
-zn  
-  proportion of residential land zoned for lots over 25,000 sq.ft.  
-indus  
-  proportion of non-retail business acres per town.  
-chas  
-  Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).  
-nox  
-  nitrogen oxides concentration (parts per 10 million).  
-rm  
-  average number of rooms per dwelling.  
-age  
-  proportion of owner-occupied units built prior to 1940.  
-dis  
-  weighted mean of distances to five Boston employment centres.  
-rad  
-  index of accessibility to radial highways.  
-tax  
-  full-value property-tax rate per \$10,000.  
-ptratio  
-  pupil-teacher ratio by town.  
-black  
-  1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town.  
-lstat  
-  lower status of the population (percent).  
-medv  
-  median value of owner-occupied homes in \$1000s.  
+
+crim
+
+    per capita crime rate by town.
+zn
+
+    proportion of residential land zoned for lots over 25,000 sq.ft.
+indus
+
+    proportion of non-retail business acres per town.
+chas
+
+    Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).
+nox
+
+    nitrogen oxides concentration (parts per 10 million).
+rm
+
+    average number of rooms per dwelling.
+age
+
+    proportion of owner-occupied units built prior to 1940.
+dis
+
+    weighted mean of distances to five Boston employment centres.
+rad
+
+    index of accessibility to radial highways.
+tax
+
+    full-value property-tax rate per \$10,000.
+ptratio
+
+    pupil-teacher ratio by town.
+black
+
+    1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town.
+lstat
+
+    lower status of the population (percent).
+medv
+
+    median value of owner-occupied homes in \$1000s.
+
     
 Not even the host page tells us much about the purpose of this dataset. If I had to guess, I'd guess it was collected to analyze correlates and predictors of house prices. Here are the summaries:
 ```{r}
@@ -52,7 +68,7 @@ library("corrplot");library("tidyverse")
   Circle diameter and darkness illustrate the strength of the variable's correlation with the variable that intersects with it in the matrix. Blue color means a positive correlation, red is negative. The strongest correlations that catch my eye in this plot are:
   
   * Air pollution levels and distance from large employment centers (negative). This is a 'well, duh' observation -- of course pollution is lower the farther you get from the chimneys and smokestacks.
-  * Property tax and the amount of industry in town -- this correlation is not at all self-evident to me. I would have assumed that taxes would be lower in industrial centers because industrious people create wealth and don't need income redistribution in the form of high taxes. But I seem to be missing something critical.
+  * Property tax and the amount of industry in town -- this correlation is not at all self-evident to me. I would have assumed that taxes are lower in industrial centers because industrious people create wealth and don't need income redistribution in the form of high taxes. But I seem to be missing something critical.
   * Distance from emplyoment centers is also strongly negatively correlated with the amount of industry in town. I guess this means people don't want to run their factories in remote locations where the long commute would turn off potential employees.
   
 Now it's time to scale the data.
@@ -171,4 +187,29 @@ We'll now perform this analysis in reverse. We'll take 4 clusters -- this seems 
 km4<-kmeans(dist_eu, centers = 4)
 Boston$cluster<-km4$cluster
 (ld4.4c<-lda(cluster ~ ., data=Boston))
+```  
+  
+  It is not clear to me how exactly the Linear Discriminants (LD's) are to be interpreted and applied. There are always K-1 of them, where K is the number of classes/clusters. But what exactly do the values represent? What exactly do the LD1 coefficients "discriminate", and __from what__? Should we assume that the LD1 coefficients are what differentiate Cluster 1 from Cluster 2? Or Cluster 2 from Cluster 3? I have yet to find an answer to this neither by Googling nor in any of the course materials.  
+    
+At any rate, we can still use the Group Means data to improvise some hypotheses on the four clusters that have been identified:  
+
+* Cluster 1: Lots of crime, lots of industry, lots of pollution, apartments are old and small, close proximity to central traffic routes and employment centers, and very few blacks in the population. Hmmm....this sounds like an old-fashioned white working-class neighborhood -- exactly the kind of place that is run by stereotypical gangsters in trench coats and fedoras. Think Al Capone, only in Boston instead of NY. In fact, if you've seen [this film](http://www.imdb.com/title/tt0407887/), then you know exactly the kind of place I'm envisioning.
+
+* Cluster 2: The main difference between this one and Cluster 1 is in the dramatic reduction in the rate of crime and that blacks are allowed in this neighborhood. Otherwise the two clusters seem to fit a similar profile. _Dis_ and _rad_ indicate that this is a type of suburb that tends to be a bit farther from downtown but is overall still quite conveniently located. Houses are still old and small, though not so old as in Cluster 1. Therefore, I conjecture that this cluster represents the 2nd layer, or ring, of the city that was built around the core once the core became too cramped to accomodate the growing population. These places are still relatively working-class but they are no longer run by gangsters like Cluster 1 is. The absence of racist gangsters enables the entry of non-white ethnic groups into the landscape.
+
+* Cluster 3: These are suburbs proper -- sub-urban in the most authentic sense of the word. They represent the Outer Ring of a city -- relatively quiet and peaceful places with significantly less economical and industrial activity than in the previous two clusters. There is more space, so houses are bigger and tend to be new. People move here because of the increased preace and safety relative to downtown -- when they have their first children. The flipside to that coin is the reduced access to many services and entertainment options -- you have to take a train or drive to access some of the shiniest and trendiest goodies. But happy families generally don't care so much for that kind of thing.
+
+* Cluster 4: These are also outer suburbs, but they differ from Cluster 3 in one important respect: there are no families. These are districts constructed to provide affordable housing to newcomers who are young, single, and seeking career opportunities. Apartments are new and small, so they cost more than in Clusters 1 and 2 but significantly less than in Cluster 3.  
+  
+  Now it's time to draw one of those goofy arrow plots again -- biplot is what I think it's called. Sigh. Do I really have to?
+```{r}
+luokat <- Boston$cluster
+plot(ld4.4c, dimen = 2, col=luokat, pch=luokat);lda.arrows(ld4.4c, myscale = 1.5)
 ```
+  
+  Try as I might, I just can't extract a whole lot of useful information from this plot. Maybe I could if there were fewer variables and the picture didn't get so cramped. But the instructions were what they were. Pretty much the only bits of data that I'm able to glean from this plot are these two:
+1. Air pollution correlates with Cluster 1. Well that's to be expected of the core regions of the city, where the bulk of cars and businesses are.
+2. Property Tax rates also correlate with Cluster 1. This one is harder to decipher. I imagine it might be because being close to downtown is valued highly, especially by businesses, so those properties are also taxed more heavily regardless of their condition.
+  
+  As the variables that are the most influential linear separators of the clusters, I can't answer that confidently since I'm still unclear on how to interpret the Linear Determinant coefficients. But if the Group Means are any indicator (and they darn well should be), then I'd say the biggest differentiators are _tax_, _indus_, _rad_ and _nox_. And I would also say that these variables likely reflect the the Downtown-Suburban dichotomy. This would also explain why the WCSS by Clusters plot earlier showed 2 to be the ideal number of clusters. It was probably showing us this same dichotomy that it was capturing, and our present 4-cluster model just adds a bit of extra nuance to it -- at the cost of increased model complexity. 
+  
