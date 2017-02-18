@@ -180,7 +180,9 @@ pairs(Boston, col = km$cluster)
 ```
   
   I don't get much out of this plot, either. There's too much stuff jammed into a tight space.
-##Bonus
+  
+##Analyzing 4 Clusters
+
 We'll now perform this analysis in reverse. We'll take 4 clusters -- this seems a relatively good number, judging from the second-to-last-plot -- and perform LDA on _Boston_ with the 4 clusters as target classes, in order to try and identify their common characteristics.  
   
 ```{r}
@@ -197,7 +199,7 @@ However, what exactly do the coefficients represent? How are they calculated? In
     
 At any rate, we can still use the Group Means data to improvise some hypotheses on the four clusters that have been identified:  
 
-* Cluster 1: Lots of crime, lots of industry, lots of pollution, apartments are old and small, close proximity to central traffic routes and employment centers, and very few blacks in the population. Hmmm....this sounds like an old-fashioned white working-class neighborhood -- exactly the kind of place that is run by archetypcal gangsters in trench coats and fedoras. Think Al Capone, only in Boston instead of NY. In fact, if you've seen [this film](http://www.imdb.com/title/tt0407887/), then you know exactly the kind of place I'm envisioning.
+* Cluster 1: Lots of crime, lots of industry, lots of pollution, apartments are old and small, close proximity to central traffic routes and employment centers, and very few blacks in the population. Hmmm....this sounds like an old-fashioned white working-class neighborhood -- exactly the kind of place that is run by archetypcal gangsters in trench coats and fedoras. Think Al Capone, only in Boston instead of Chicago. In fact, if you've seen [this film](http://www.imdb.com/title/tt0407887/), then you know exactly the kind of place I'm envisioning.
 
 * Cluster 2: The main difference between this one and Cluster 1 is in the dramatic reduction in crime and the fact that blacks are allowed in this neighborhood. Otherwise the two clusters seem to fit a similar profile. _Dis_ and _rad_ indicate that this is a type of suburb that tends to be a bit farther from downtown but is overall still quite conveniently located. Houses are still old and small, though not so old as in Cluster 1. Therefore, I conjecture that this cluster represents the 2nd layer, or ring, of the city that was built around the core once the core became too cramped to accomodate the growing population. These places are still relatively working-class but they are no longer run by gangsters like Cluster 1 is. The absence of racist gangsters enables the entry of non-white ethnic groups into the neighborhood.
 
@@ -217,5 +219,22 @@ plot(ld4.4c, dimen = 2, col=luokat, pch=luokat);lda.arrows(ld4.4c, myscale = 1.5
 
 2.Property Tax rates also correlate with Cluster 1. This one is harder to decipher. I imagine it might be because being close to downtown is valued highly, especially by businesses, so those properties are also taxed more heavily regardless of their condition.
   
-  As the variables that are the most influential linear separators of the clusters, I can't answer that confidently since I'm still unclear on how to interpret the Linear Determinant coefficients. But if the Group Means are any indicator (and they darn well should be), then I'd say the biggest differentiators are _tax_, _indus_, _rad_ and _nox_. And I would also say that these variables likely reflect the the Downtown-Suburban dichotomy. This would also explain why the WCSS by Clusters plot earlier showed 2 to be the ideal number of clusters. It was probably showing us this same dichotomy that it was capturing, and our present 4-cluster model just adds a bit of extra nuance to it -- at the cost of increased model complexity. 
+  As the variables that are the most influential linear separators of the clusters, I can't answer that confidently since I'm still unclear on how to interpret the Linear Determinant coefficients. But if the Group Means are any indicator (and they darn well should be), then I'd say the biggest differentiators are _tax_, _indus_, _rad_ and _nox_. And I would also say that these variables likely reflect the the Downtown-Suburban dichotomy. This would also explain why the WCSS by Clusters plot earlier showed 2 to be the ideal number of clusters. It was probably showing us this same dichotomy that it was capturing, and our present 4-cluster model just adds a bit of extra nuance to it -- at the cost of increased model complexity.
+  
+##Visualizing Linear Discriminants
+
+Another reason why it is inconvenient to have more clusters than strictly necessary is that spatial-geometrical visualization of the Linear Discriminants differentiating the clusters becomes impossible if the number of clusters exceeds 4. Computer screens are 2d, so visualizing the third dimension necessary to represent the third discriminant used in 4-cluster models is very computationally expensive. And more than three discriminants cannot be geometrically represented at all -- at least not in static images. To complete this chapter, we will now attempt to visually plot the three Linear Discriminants defined by the LD model that we built to find differentiating characteristics between the 4 categories of crime rate. This 3d plot is a product of the _plotly_ package:
+
+
+```{r}
+model_predictors<-TrainingSet[,which(colnames(TrainingSet)!="crime.factor")]
+dim(model_predictors)
+dim(lda.fit$scaling)
+matrix_product <- as.matrix(model_predictors) %*% lda.fit$scaling
+matrix_product <- as.data.frame(matrix_product)
+library(plotly)
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type= 'scatter3d', mode='markers', color=TrainingSet$crime.factor)
+```
+
+
   
