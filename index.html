@@ -650,41 +650,41 @@ alcohol.practice[seq(1,nrow(alcohol.practice),25),5:8]</code></pre>
 <pre><code>## [1] 0.2984293</code></pre>
 <p>So it’s slightly below 30%. An educated guesser would take this empirical probability and toss a commensurately biased coin for each student in the dataset, resulting in a sequence of predictions like this:</p>
 <pre class="r"><code>(alcohol.practice$EducatedGuesses &lt;- sample(c(TRUE, FALSE), size = nrow(alcohol), replace = TRUE, prob = c(EmpiricalProbability,1-EmpiricalProbability)))</code></pre>
-<pre><code>##   [1] FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE
-##  [12] FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE
-##  [23] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
-##  [34] FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE
-##  [45]  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
-##  [56] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE
-##  [67]  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE
-##  [78]  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
-##  [89] FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
-## [100] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
-## [111] FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE
-## [122] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE
-## [133]  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE
-## [144] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE
-## [155]  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE
-## [166] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
-## [177]  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
-## [188] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
-## [199] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE
-## [210] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE
-## [221]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE
-## [232] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE
-## [243] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
-## [254]  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE
-## [265] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE
-## [276] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
-## [287]  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE
-## [298] FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE
-## [309] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
-## [320]  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
-## [331] FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE
-## [342]  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
-## [353] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-## [364] FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE
-## [375] FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE</code></pre>
+<pre><code>##   [1]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE
+##  [12]  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE
+##  [23]  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE
+##  [34]  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE
+##  [45] FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [56]  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE
+##  [67] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
+##  [78]  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+##  [89] FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE FALSE
+## [100]  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+## [111] FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE
+## [122] FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE
+## [133] FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+## [144]  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE
+## [155] FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE FALSE
+## [166]  TRUE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE  TRUE
+## [177]  TRUE FALSE FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE
+## [188] FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE
+## [199] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+## [210] FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+## [221]  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE
+## [232] FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE
+## [243] FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE FALSE  TRUE
+## [254] FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE
+## [265]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
+## [276] FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [287] FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
+## [298]  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE
+## [309] FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE
+## [320]  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE
+## [331] FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE  TRUE
+## [342] FALSE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE FALSE
+## [353] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE
+## [364]  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE
+## [375] FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE</code></pre>
 <pre class="r"><code>alcohol.practice$EducatedGuessFailed &lt;- alcohol.practice$real_outcome!=alcohol.practice$EducatedGuesses</code></pre>
 <p>Now then, we will simply cross-tabulate the outcome distributions of these two prediction strategies.</p>
 <pre class="r"><code>ModelPredictionFail &lt;- table(alcohol.practice$prediction.failed) 
@@ -692,14 +692,14 @@ EducatedGuessFail&lt;- table(alcohol.practice$EducatedGuessFailed)
 (CrossTab &lt;- rbind(ModelPredictionFail, EducatedGuessFail))</code></pre>
 <pre><code>##                     FALSE TRUE
 ## ModelPredictionFail   272  110
-## EducatedGuessFail     220  162</code></pre>
+## EducatedGuessFail     229  153</code></pre>
 <p>The chi-square test is perfect for these situations. It measures the total, aggregate difference between the frequency distributions of two (or more) samples, and reports the probability that an equal or greater difference would occur if both samples were from the same population. This probability is the p-value. In our case, the “populations” are the hypothetical populations of successful and failed predictions generated by the two guessing strategies. If the prediction strategies are equally good, then it is unlikely that their observed success rates in our dataset of 382 students would differ enough to result in a p-value below .05. Let’s find out:</p>
 <pre class="r"><code>chisq.test(CrossTab)</code></pre>
 <pre><code>## 
 ##  Pearson's Chi-squared test with Yates' continuity correction
 ## 
 ## data:  CrossTab
-## X-squared = 14.849, df = 1, p-value = 0.0001165</code></pre>
+## X-squared = 10.228, df = 1, p-value = 0.001383</code></pre>
 <p>My output reports a p-value far below the highest significance level of .001, so it seems safe to assume that the model soundly outperforms the educated guessing strategy. But bear in mind that the educated guesses are re-generated from the empirical probabilities every time this page is loaded, so your results will not be identical to mine! Should you somehow get lucky and chance upon an instance of the educated guessing strategy outperforming the model (or even being competitive enough to result in a statistically non-significant p-value), feel free to take a screenshot and email it to me at juho decimalpoint ruohonen at helsinki decimalpoint eff eye.</p>
 </div>
 <div id="cross-validating-the-model" class="section level2">
@@ -714,7 +714,7 @@ loss.func(alcohol$high_use,alcohol$probability)</code></pre>
 <pre class="r"><code>library(boot)
 CrossVal &lt;- cv.glm(data = alcohol, glmfit=model, cost = loss.func, K = 10)
 CrossVal$delta[[1]]</code></pre>
-<pre><code>## [1] 0.3089005</code></pre>
+<pre><code>## [1] 0.3036649</code></pre>
 <p>Now the error rate is of course higher than when we were simply testing the model’s predictive power on the exact same dataset on which it was built.</p>
 <p>This model performs worse than the one based on <em>failures</em>, <em>absences</em> and <em>sex</em> that we used in the Datacamp exercises. However, I chose these variables for autodidactic reasons (to teach myself to work with both continuous and categorical ones) rather than to maximize prediction performance. I predict, however, that it shall be easy to come up with a 4-variable model with an error rate below 25%. Actually, that goal is too modest. Let’s shoot for a 3-variable model with an error rate lower than 25%.</p>
 <p>To make the model-building and experimentation quicker and more convenient, we’ll write a function to minimize the typing and manual calculus involved:</p>
@@ -767,7 +767,7 @@ So, let’s try to find a model that uses only 3 predictors and achieves an erro
 ## studytime.factor&gt;10h  -1.2908808 -2.6060013 -0.20350510
 ## 
 ## Error rate in 10-fold cross-validation:
-##  0.2984293</code></pre>
+##  0.3036649</code></pre>
 <pre class="r"><code>logregr(alcohol, high_use ~ sex+famrel+Pstatus)</code></pre>
 <pre><code>## 
 ## Call:
@@ -803,7 +803,7 @@ So, let’s try to find a model that uses only 3 predictors and achieves an erro
 ## PstatusT    -0.08713609 -0.8145044  0.68972175
 ## 
 ## Error rate in 10-fold cross-validation:
-##  0.2879581</code></pre>
+##  0.2931937</code></pre>
 <p>Sigh. I wanted to find the better model without resorting too much to the silly variables used in the Datacamp example – that model predicts high alcohol use from school absenteeism and failures. Common sense suggests that high use of alcohol is a cause, not a result, of these phenomena. But in order to be able to move on, I’ll just use <em>sex</em> and <em>absences</em> as the first two variables, and try to find a third one that improves model performance relative to <em>failures</em></p>
 <pre class="r"><code>logregr(alcohol, high_use ~ sex+absences+goout)</code></pre>
 <pre><code>## 
@@ -840,7 +840,7 @@ So, let’s try to find a model that uses only 3 predictors and achieves an erro
 ## goout        0.7284671  0.49910441  0.9703140
 ## 
 ## Error rate in 10-fold cross-validation:
-##  0.2068063</code></pre>
+##  0.2198953</code></pre>
 <p>We have a a winner! Maleness, school absenteeism, and going out with friends are all significant correlates – though not necessarily causes – of high alcohol use in 15-to-22-year-old Portuguese students.</p>
 </div>
 <div id="manual-step-down-regression" class="section level2">
@@ -1421,7 +1421,7 @@ head(TrainingSet)</code></pre>
 ##    LD1    LD2    LD3 
 ## 0.9558 0.0336 0.0106</code></pre>
 <p>Linear Discriminant Analysis is a pattern-recognition and dimensionality-reduction technique. It is used to to identify patterns in the behavior of a set of continuous explanatory variables in 2 or more known categories/groups (the dependent variable), and distill these different behaviors into a set of “discriminants” that are specific combinations of values that the explanatory variables tend to take in each category/group.</p>
-<p>For instance, imagine you’re an entrepreneur selling a single product that you’ve worked years on. To improve the success rate of your marketing efforts, you might gather all the available information on the people you’ve ever solicited in your career, and conduct a LDA to identify what the people who actually buy from you have in common. Say you’re able to access the information on the following set of explanatory variables: age, income level, BMI, number of children, hair length, size of current home town – that’s 7 explanatory variables. Conducting an LDA might reveal that the people who buy from you tend to be over the age of 30, have more than 3 kids, live in very small towns, and have medium-to-low income. That is their “discriminant”, and you can multiply your sales by focusing your marketing on people who match that profile.</p>
+<p>For instance, imagine you’re an entrepreneur selling a single product that you’ve worked years on. To improve the success rate of your marketing efforts, you might gather all the available information on the people you’ve ever solicited in your career, and conduct a LDA to identify what the people who actually buy from you have in common. Say you’re able to access the information on the following set of explanatory variables: age, income level, BMI, number of children, hair length, size of current home town – that’s 7 explanatory variables. You could then use LDA to determine which of those 7 variables are actually significant in differentiating buyers from non-buyers and which aren’t. The significant ones have an LD coefficient with a high absolute value, while the coefficients of the non-significant differentiators are closer to zero. In our hypothetical scenario, for example, LDA might reveal that the people who buy from you tend to be over the age of 30, have more than 3 kids, live in very small towns, and have medium-to-low income. That is their “linear discriminant”, and you can multiply your sales by focusing your marketing on people who match that profile.</p>
 <p>In the exercise at hand, we’re trying to identify the discriminants of the 4 different levels of crime rate. I’m not particularly enamored with this categorization: I view this dependent variable as essentially continuous, and its conversion into a factor seems somewhat artificial to me. But the instructions are what they are, and obey we must. Here’s an arrow bi-plot of the LDA:</p>
 <pre class="r"><code>lda.arrows &lt;- function(x, myscale = 1, arrow_heads = 0.1, color = &quot;red&quot;, tex = 0.75, choices = c(1,2)){
   heads &lt;- coef(x)
