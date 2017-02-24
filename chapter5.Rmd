@@ -1,0 +1,88 @@
+#Dimensionality Reduction
+  
+  In this chapter we deal with data that represents countries, not people or towns. This data was collected to analyze correlations what the UN calls 'human development' and a variety of other factors. Should be relatively interesting! We start by importing the dataset.
+  
+```{r}
+human <- read.table("C:/Users/juho/Desktop/IODS-project/IODS-project/data/human.txt", header=T, sep="\t",quote=NULL)
+```  
+  
+  Then we'll visualize it:
+
+```{r}
+library(ggplot2)
+library(GGally)
+ggpairs(human, mapping = aes(alpha=0.3), lower = list(combo = wrap("facethist", bins = 20))) + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```  
+  
+  Many of the variables are highly correlated with each other, as is to be expected. Some of these correlations are self-evident, such as the one between life expectancy and maternal mortality. Adolescent birth rates seem negatively correlated with life expectancy. In this case I suspect it is probably life expectancy that drives adolescent birth rates and not vice versa -- a high risk of dying young instills urgency to the endeavor of continuing the species, while a long life expectancy probably makes people want to take their time choosing the right partner and circumstances for breeding. Gross National Income and life expectancy both correlate with expected length of education. In this case it is hard to say which one is causing which in each pair.  
+  
+## Principal Component Analysis (PCA)
+PCA is used to try and summarize, or condense, the overall variation of a set of variables into a minimal number or "principal components", i.e., bundles of mutually correlated variables. Each bundle must be orthogonal (uncorrelated) with the other bundles, while all variables within one bundle must correlate with each other, positively or negatively. Thus PCA is similar to LDA. The difference is that where LDA aims to summarize differences between different user-specified groups, PCA aims to summarize the overall variance. Let's now perform PCA on the human dataset:
+
+```{r}
+(pca<-prcomp(human))
+(pca.summary<-summary(pca))
+```  
+  
+  I can't make much sense of these results. It claims that only the first principal component (PC1) is meaningful. But this is probably because the analysis was done without scaling the dataset first. PCA assumes that variables with a high variance are more meaningful than ones with a small variance. The variables in _human_ are measured in different units with different ranges -- most are percentages that vary between 0 and 1, while use units like dollars or euros per capita and range between zero and infinity. It is to be expected that this will confuse PCA. But let's nonetheless comply with the instructions and draw a biplot using the first two principal components as axes:
+  
+```{r}
+prossat<-round(100*pca.summary$importance[2, ], digits = 1)
+laabelitjaleibelit<-paste0(names(prossat), " (", prossat, "%)")
+biplot(pca, cex = c(0.8, 1), col = c("blue", "red"), xlab = laabelitjaleibelit[1], ylab = laabelitjaleibelit[2], main="Human development (unscaled) by two principal components")
+```  
+  
+  This also seems to support the notion that performing PCA on variables using different units and ranges doesn't make much sense. You can even see how R complains about the virtual non-existence of the other principal components than the first. Their effects are virtually nullified by the disproportionate ranges of the variables in PC1.  
+  
+  Now let's perform the same analysis and plotting on a __scaled__ version of the dataset, and admire the results:
+  
+```{r}
+human.scaled<-scale(human)
+pca.scaled<-prcomp(human.scaled)
+(pca.scaled.summary<-summary(pca.scaled))
+rosentit<-round(100*pca.scaled.summary$importance[2, ], digits = 1)
+akselit<-paste0(names(rosentit), " (", rosentit, "%)")
+biplot(pca.scaled, cex = c(0.8, 1), col = c("darkgreen", "purple"), xlab = akselit[1], ylab = akselit[2], main="Human development (scaled) by two principal components")
+```  
+  
+  There. Though the high density of data points makes the plot messy, now we can actually get at least SOME useful information out of it. Principal Component 1, i.e. the most important combined element of variance in the dataset, is strongly positively correlated with life expectancy and expected years of education. It is strongly negatively correlated with teen pregnancies and maternal mortality. Principal Component 2 is strongly correlated with the level of female participation in politics and the workforce. That is why one end of this spectrum seems to consist almost exclusively of arab countries, where women's participation in public forums is heavily restricted.
+
+##Multiple Correspondence Analysis (MCA)
+Now we shall attempt something similar to PCA, but with categorical variables. Our dataset is about people's tea consumption habits. We begin by loading the necessary libraries -- then we'll import the data and survey it:  
+  
+  
+```{r}
+library(FactoMineR)
+data(tea)
+str(tea)
+summary(tea)
+```  
+  
+  This is a tad too many variables to visualize on a plot without cluttering it. We'll select only 6 of them. Before removing variables, however, we'll back up the original dataset first however.
+  
+```{r}
+tea.backup<-tea
+tea<-tea[,c("Tea","How","how","where","sugar","lunch")]
+head(tea)
+```  
+  
+  Now we'll plot this thing using the code from Datacamp:
+
+```{r}
+library(tidyr)
+gather(tea) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```  
+  
+  These plots plainly show us that the most popular form of tea is a regular tea bag, bought in a regular grocery store and served black. This is clearly a British dataset since Earl Grey is the preferred variety. Most people don't have tea with lunch, and the use vs. non-use of sugar are evenly distributed. Next, we will apply MCA on this data and draw a biplot:
+  
+```{r}
+tea.mca<-MCA(tea,graph=F) 
+(mca.summary<-summary(tea.mca))
+plot(tea.mca, invisible=c("ind"),habillage="quali")
+```
+
+The _Dim_'s apparently correspond go the Principal Components of PCA. The _% of var_ and _Cumulative % of var_ seem to correspond to _Proportion of Variance_ and _Cumulative Proportion_ in PCA. It appears that these principal components do a relatively poor job of explaining the variance of the dataset -- the first two together only account for 30% of the total variance, while the first two PC's in our previous exercise accounted for 70%.  
+  
+  The factor levels _unpackaged_ and _tea bag_ both play as huge role in the first principal component, as shown by their massively significant _v.test_ values (which are supposedly equivalent to z-scores). Both of them are levels of the same variable -- namely, _how_ and thus measure the same thing. I guess this is because generally, whether you have your tea in a teabag or unpackaged is an indicator of whether you're having it at home or in a café -- and those things have many implications for a number of other variables too. This also explains why, on the biplot, _unpackaged_ and _tea shop_ are the two items most different from the rest yet similar to each other. Both of them are factor levels closely tied to the action of having tea outside your home. The same things explains why in the Categorical variables table, _how_ and _where_ are by far the two most important contributors to this principal component. They are flipsides of the same coin.  
+  
+  Tea type is the second-most important element in the first principal component. This is somewhat surprising. Within this variable, Earl Grey is the most influential factor level. This might suggest that people who drink this variety are different from the average population. An easy, if somewhat intellectually lazy, assumption is that the Earl Grey drinkers are stereotypical upper-class Englishmen impeccable Oxford accents, whose culture and lifestyle is very different from the common man.
