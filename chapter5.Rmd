@@ -1,6 +1,6 @@
 #Dimensionality Reduction
   
-  In this chapter we deal with data that represents countries, not people or towns. This data was collected to analyze correlations what the UN calls 'human development' and a variety of other factors. Should be relatively interesting! We start by importing the dataset.
+  In this chapter we deal with data that represents countries, not people or towns. This data was collected to analyze correlations between what the UN calls 'human development' and a variety of other factors. Should be relatively interesting! We start by importing the dataset.
   
 ```{r}
 human <- read.table("C:/Users/juho/Desktop/IODS-project/IODS-project/data/human.txt", header=T, sep="\t",quote=NULL)
