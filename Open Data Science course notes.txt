@@ -84,3 +84,5 @@ summary(malli) antaa tuttuun tapaan lukijaystävällisemmän yhteenvedon.
 
 plot(mca, invisible=c("ind"),habillage="quali") #piirtää kuvaajan, jossa kahden pääkomponentin (dim) muodostamaan x-y-koordinaatistoon on asetettu (kategoristen) selittävien muuttujien eri arvoja. nyt olen kyllä ulalla että mitä invisible-argumentti tekee. ei koko datasetissä ole variaabelia nimeltä "ind". olettaako se aina, että "ind" viittaa havaintoyksikköihin ja osaa tuon käskyn perusteella plotata koordinaatistoon variaabelit havaintoyksikköjen sijaan? ja millä käskyllä plotattaisiin variaabelien sijaan havaintoyksiköt?
 #sensijaan habillage="quali" osaa älykkäästi värittää koordinaatistoon piirrettävät pisteet siten, että väri kertoo, mihinkä selittävään muuttujaan kyseinen arvo kuuluu. esim tea_time datasetissä unpackaged-arvo on vihreä, mikä kuvastaa sitä, että se on faktorin "how" arvo, ja tea shop -arvo on turkoosi, mikä kuvastaa sitä, että se on faktorin "where" arvo.
+
+Rmarkdown chunkkiin voi lisätä {r fig.cap="kuvaus"} niin näin se print-outtiin tai liittää haluamasi otsikon/kuvatekstin.
